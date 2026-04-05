@@ -56,32 +56,6 @@ export function useThemeContext(): ThemeContextValue {
   return ctx;
 }
 
-/**
- * Inline script that runs before React hydration.
- * Reads localStorage and sets data-theme on <html> immediately,
- * preventing any flash of wrong theme on page navigation.
- */
-function ThemeInitScript() {
-  return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: `
-          (function(){
-            try {
-              var t = localStorage.getItem('buddha-theme');
-              if (t && t !== 'light') {
-                document.documentElement.setAttribute('data-theme', t);
-              } else {
-                document.documentElement.removeAttribute('data-theme');
-              }
-            } catch(e) {}
-          })();
-        `.replace(/\n\s*/g, ""),
-      }}
-    />
-  );
-}
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");
 
@@ -119,14 +93,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/**
- * Must be placed inside <head> in the root layout.
- * Runs synchronously before React renders, eliminating theme flash.
- */
-export function ThemeScript() {
-  return <ThemeInitScript />;
-}
-
 export function ThemeToggle() {
   const { theme, cycleTheme } = useThemeContext();
 
@@ -134,7 +100,7 @@ export function ThemeToggle() {
     theme === "light"
       ? "切換至深色模式"
       : theme === "dark"
-        ? "切換至古卷模式"
+        ? "切换至古卷模式"
         : "切換至淺色模式";
 
   const Icon = THEME_ICONS[theme];

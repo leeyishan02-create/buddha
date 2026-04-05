@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { X, BookOpen, Loader2 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useTocState } from "./TocState";
+import { useLocale } from "@/lib/locale/useLocale";
 import type { CbetaFascicleInfo } from "@/lib/cbeta/types";
 
 interface TableOfContentsProps {
@@ -12,6 +13,7 @@ interface TableOfContentsProps {
 
 export function TableOfContents({ catalogId }: TableOfContentsProps) {
   const { open, close } = useTocState();
+  const { convert } = useLocale();
   const [toc, setToc] = useState<CbetaFascicleInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export function TableOfContents({ catalogId }: TableOfContentsProps) {
       const data = await res.json();
       setToc(data.fascicles ?? []);
     } catch {
-      setError("載入目錄失敗，請重試");
+      setError("加载目录失败，请重试");
     } finally {
       setLoading(false);
     }
@@ -53,6 +55,27 @@ export function TableOfContents({ catalogId }: TableOfContentsProps) {
     return () => document.removeEventListener("keydown", handleEscape);
   }, [open, close]);
 
+  // Convert TOC titles
+  const convertedToc = useMemo(
+    () =>
+      toc.map((item) => ({
+        ...item,
+        title: convert(item.title),
+      })),
+    [toc, convert],
+  );
+
+  // Convert number to Chinese numeral
+  const toChineseNum = (n: number): string => {
+    const digits = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+    if (n < 10) return digits[n];
+    if (n === 10) return "十";
+    if (n < 20) return "十" + digits[n - 10];
+    const tens = Math.floor(n / 10);
+    const ones = n % 10;
+    return digits[tens] + "十" + (ones > 0 ? digits[ones] : "");
+  };
+
   if (!open) return null;
 
   return (
@@ -70,18 +93,18 @@ export function TableOfContents({ catalogId }: TableOfContentsProps) {
           bottom-0 left-0 right-0 rounded-t-2xl border-t
           lg:left-auto lg:top-0 lg:bottom-0 lg:w-80 lg:rounded-none lg:border-l lg:border-t-0"
         role="dialog"
-        aria-label="目錄"
+        aria-label="目录"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
           <span className="flex items-center gap-2 text-sm font-medium font-ui text-text-primary">
             <BookOpen className="h-4 w-4" aria-hidden="true" />
-            目錄
+            目录
           </span>
           <button
             onClick={close}
             className="rounded-lg p-1.5 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-            aria-label="關閉目錄"
+            aria-label="关闭目录"
           >
             <X className="h-5 w-5" />
           </button>
@@ -95,8 +118,8 @@ export function TableOfContents({ catalogId }: TableOfContentsProps) {
           {loading && (
             <div className="flex flex-col items-center justify-center py-12 text-text-tertiary">
               <Loader2 className="h-6 w-6 animate-spin mb-3" />
-              <p className="text-sm">正在載入目錄...</p>
-              <p className="text-xs mt-1">這可能需要幾秒鐘</p>
+              <p className="text-sm">正在加载目录...</p>
+              <p className="text-xs mt-1">这可能需要几秒钟</p>
             </div>
           )}
 
@@ -107,20 +130,20 @@ export function TableOfContents({ catalogId }: TableOfContentsProps) {
                 onClick={loadToc}
                 className="rounded-lg bg-accent px-4 py-2 text-sm text-white transition-colors hover:bg-accent-hover"
               >
-                重試
+                重试
               </button>
             </div>
           )}
 
           {!loading && !error && toc.length === 0 && (
             <div className="py-8 text-center text-sm text-text-tertiary">
-              此經典只有一卷
+              此经典只有一卷
             </div>
           )}
 
-          {!loading && !error && toc.length > 0 && (
+          {!loading && !error && convertedToc.length > 0 && (
             <div className="space-y-1">
-              {toc.map((item) => (
+              {convertedToc.map((item) => (
                 <Link
                   key={item.id}
                   href={`/text/${catalogId}?vol=${item.num}`}
@@ -130,7 +153,7 @@ export function TableOfContents({ catalogId }: TableOfContentsProps) {
                   <span className="shrink-0 text-xs font-mono tabular-nums text-text-tertiary">
                     {String(item.num).padStart(2, "0")}
                   </span>
-                  <span className="truncate font-reading">{item.title}</span>
+                  <span className="truncate font-reading">卷{toChineseNum(item.num)}</span>
                 </Link>
               ))}
             </div>

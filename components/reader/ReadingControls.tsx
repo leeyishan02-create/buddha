@@ -14,11 +14,12 @@ import {
 } from "lucide-react";
 import { useReaderContext } from "./ReadingPrefsProvider";
 import { useThemeContext } from "@/components/ThemeToggle";
+import { useLocale } from "@/lib/locale/useLocale";
 import type { Theme } from "@/components/ThemeToggle";
 import { useCallback, useState, useRef, useEffect } from "react";
 
 const THEMES: { value: Theme; label: string; Icon: React.ElementType }[] = [
-  { value: "light", label: "宣紙", Icon: Sun },
+  { value: "light", label: "宣纸", Icon: Sun },
   { value: "sepia", label: "古卷", Icon: BookOpen },
   { value: "dark", label: "墨夜", Icon: Moon },
 ];
@@ -43,6 +44,7 @@ export function ReadingControls() {
   } = useReaderContext();
 
   const { theme, cycleTheme } = useThemeContext();
+  const { locale, toggleLocale } = useLocale();
   const [open, setOpen] = useState(false);
   const [fontSizeInput, setFontSizeInput] = useState(
     typeof fontSize === "number" ? String(fontSize) : "18",
@@ -133,7 +135,7 @@ export function ReadingControls() {
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-40 rounded-full bg-accent p-3 text-white shadow-lg transition-colors hover:bg-accent-hover active:bg-accent-active focus-visible:outline-2 focus-visible:outline-border-focus"
-        aria-label="開啟閱讀設定"
+        aria-label="开启阅读设置"
       >
         <Settings2 className="h-5 w-5" />
       </button>
@@ -158,17 +160,17 @@ export function ReadingControls() {
           ${open ? "lg:translate-x-0" : "lg:translate-x-full"}
         `}
         role="dialog"
-        aria-label="閱讀設定"
+        aria-label="阅读设置"
       >
         {/* Close button — visible on all breakpoints */}
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
           <span className="text-sm font-medium font-ui text-text-primary">
-            閱讀設定
+            阅读设置
           </span>
           <button
             onClick={() => setOpen(false)}
             className="rounded-lg p-1.5 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-            aria-label="關閉"
+            aria-label="关闭"
           >
             <X className="h-5 w-5" />
           </button>
@@ -183,13 +185,13 @@ export function ReadingControls() {
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-medium font-ui text-text-secondary">
               <Type className="h-4 w-4" aria-hidden="true" />
-              字級
+              字级
             </label>
             <div className="flex items-center gap-2">
               <button
                 onClick={decreaseFontSize}
                 className="rounded-lg border border-border p-2 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-                aria-label="縮小字級"
+                aria-label="缩小字级"
               >
                 <Minus className="h-4 w-4" />
               </button>
@@ -209,14 +211,14 @@ export function ReadingControls() {
                   onFocus={() => setFontSizeFocused(true)}
                   onKeyDown={handleFontSizeKeyDown}
                   className="w-10 rounded-l-lg border-0 bg-transparent py-2 text-center text-sm font-ui text-text-primary tabular-nums focus:outline-none"
-                  aria-label="字級數值"
+                  aria-label="字级数值"
                 />
                 <span className="flex items-center px-1.5 text-xs font-ui text-text-tertiary select-none">px</span>
               </div>
               <button
                 onClick={increaseFontSize}
                 className="rounded-lg border border-border p-2 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-                aria-label="放大字級"
+                aria-label="放大字级"
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -226,7 +228,7 @@ export function ReadingControls() {
           {/* Font Family */}
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-medium font-ui text-text-secondary">
-              字體
+              字体
             </label>
             <div className="grid grid-cols-4 gap-1.5">
               <button
@@ -237,7 +239,7 @@ export function ReadingControls() {
                     : "border-border text-text-secondary hover:bg-bg-secondary"
                 } font-reading`}
               >
-                明體
+                明体
               </button>
               <button
                 onClick={() => setFontFamily("sans")}
@@ -247,7 +249,7 @@ export function ReadingControls() {
                     : "border-border text-text-secondary hover:bg-bg-secondary"
                 } font-ui`}
               >
-                黑體
+                黑体
               </button>
               <button
                 onClick={() => setFontFamily("kai")}
@@ -258,7 +260,7 @@ export function ReadingControls() {
                 }`}
                 style={{ fontFamily: "var(--font-kai)" }}
               >
-                楷體
+                楷体
               </button>
               <button
                 onClick={() => setFontFamily("fangsong")}
@@ -284,7 +286,7 @@ export function ReadingControls() {
               <button
                 onClick={decreaseLineHeight}
                 className="rounded-lg border border-border p-2 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-                aria-label="縮小行距"
+                aria-label="缩小行距"
               >
                 <Minus className="h-4 w-4" />
               </button>
@@ -297,7 +299,7 @@ export function ReadingControls() {
                 onBlur={handleLineHeightBlur}
                 onKeyDown={handleLineHeightKeyDown}
                 className="w-16 rounded-lg border border-border bg-bg-elevated py-2 text-center text-sm font-ui text-text-primary tabular-nums focus:outline-none"
-                aria-label="行距數值"
+                aria-label="行距数值"
               />
               <button
                 onClick={increaseLineHeight}
@@ -312,23 +314,23 @@ export function ReadingControls() {
           {/* Content Width */}
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-medium font-ui text-text-secondary">
-              內容寬度
+              内容宽度
             </label>
             <div className="flex items-center gap-2">
               <button
                 onClick={decreaseContentWidth}
                 className="rounded-lg border border-border p-2 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-                aria-label="縮小內容寬度"
+                aria-label="缩小内容宽度"
               >
                 <Minus className="h-4 w-4" />
               </button>
               <span className="flex-1 text-center text-sm font-ui text-text-primary">
-                {contentWidth === "narrow" ? "窄" : contentWidth === "medium" ? "中" : contentWidth === "wide" ? "寬" : "全寬"}
+                {contentWidth === "narrow" ? "窄" : contentWidth === "medium" ? "中" : contentWidth === "wide" ? "宽" : "全宽"}
               </span>
               <button
                 onClick={increaseContentWidth}
                 className="rounded-lg border border-border p-2 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-                aria-label="放大內容寬度"
+                aria-label="放大内容宽度"
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -338,7 +340,7 @@ export function ReadingControls() {
           {/* Theme */}
           <div>
             <label className="mb-2 block text-sm font-medium font-ui text-text-secondary">
-              主題
+              主题
             </label>
             <div className="flex rounded-lg border border-border overflow-hidden">
               {THEMES.map(({ value, label, Icon }) => (
@@ -366,18 +368,28 @@ export function ReadingControls() {
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-medium font-ui text-text-secondary">
               <Languages className="h-4 w-4" aria-hidden="true" />
-              簡繁
+              简繁
             </label>
             <div className="flex rounded-lg border border-border overflow-hidden">
               <button
-                className="flex-1 py-2 text-sm font-ui transition-colors focus-visible:outline-2 focus-visible:outline-border-focus bg-accent-light text-accent font-medium"
+                onClick={() => { if (locale !== "zh-Hant") toggleLocale(); }}
+                className={`flex-1 py-2 text-sm font-ui transition-colors focus-visible:outline-2 focus-visible:outline-border-focus ${
+                  locale === "zh-Hant"
+                    ? "bg-accent-light text-accent font-medium"
+                    : "text-text-secondary hover:bg-bg-secondary"
+                }`}
               >
-                繁體
+                繁体
               </button>
               <button
-                className="flex-1 py-2 text-sm font-ui transition-colors focus-visible:outline-2 focus-visible:outline-border-focus text-text-secondary hover:bg-bg-secondary"
+                onClick={() => { if (locale !== "zh-Hans") toggleLocale(); }}
+                className={`flex-1 py-2 text-sm font-ui transition-colors focus-visible:outline-2 focus-visible:outline-border-focus ${
+                  locale === "zh-Hans"
+                    ? "bg-accent-light text-accent font-medium"
+                    : "text-text-secondary hover:bg-bg-secondary"
+                }`}
               >
-                簡體
+                简体
               </button>
             </div>
           </div>

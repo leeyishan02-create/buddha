@@ -23,15 +23,15 @@ export function FascicleNav({
     return (
       <nav
         className="mx-auto max-w-3xl border-t border-border px-4 py-4 sm:px-6"
-        aria-label="經典導航"
+        aria-label="经典导航"
       >
         <div className="flex items-center justify-center">
           <Link
-            href="/"
+            href="/search"
             className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-ui text-accent transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-border-focus"
           >
             <Home className="h-4 w-4" aria-hidden="true" />
-            全部經典
+            全部经典
           </Link>
         </div>
       </nav>
@@ -61,13 +61,13 @@ export function FascicleNav({
             onClick={triggerTocToggle}
             className="rounded-lg px-3 py-2 text-sm font-ui text-accent transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-border-focus"
           >
-            目錄
+            目录
           </button>
           <Link
             href="/"
             className="rounded-lg px-3 py-2 text-sm font-ui text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
           >
-            首頁
+            首页
           </Link>
         </div>
 

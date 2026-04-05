@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Serif_TC, Noto_Sans_TC } from "next/font/google";
-import { ThemeProvider, ThemeScript } from "@/components/ThemeToggle";
+import { ThemeProvider } from "@/components/ThemeToggle";
+import { LocaleProvider } from "@/lib/locale/useLocale";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import "./globals.css";
@@ -23,11 +24,11 @@ const notoSansTC = Noto_Sans_TC({
 
 export const metadata: Metadata = {
   title: {
-    default: "觀心 — 佛典閱讀器",
-    template: "%s | 觀心",
+    default: "观心 — 佛典阅读器",
+    template: "%s | 观心",
   },
-  description: "探索佛教經典，從大藏經中尋找智慧",
-  keywords: ["佛典", "CBETA", "佛教", "閱讀器", "大藏經", "觀心"],
+  description: "探索佛教经典，从大藏经中寻找智慧",
+  keywords: ["佛典", "CBETA", "佛教", "阅读器", "大藏经", "观心"],
 };
 
 export default function RootLayout({
@@ -37,18 +38,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant" className={`${notoSerifTC.variable} ${notoSansTC.variable} h-full antialiased`} suppressHydrationWarning>
-      <head>
-        <ThemeScript />
-      </head>
       <body className={`min-h-full bg-bg-primary text-text-primary ${notoSansTC.className} theme-transition`}>
         <ThemeProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1" role="main">
-              {children}
-            </main>
-            <MobileNav />
-          </div>
+          <LocaleProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1" role="main">
+                {children}
+              </main>
+              <MobileNav />
+            </div>
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

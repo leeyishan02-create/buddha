@@ -8,10 +8,10 @@ import { useState, useCallback } from "react";
 import { MobileMenu } from "./MobileMenu";
 
 const navItems = [
-  { href: "/", label: "首頁", icon: Home },
-  { href: "/search", label: "搜尋", icon: Search },
-  { href: "/bookmarks", label: "書籤", icon: Bookmark },
-  { href: "/settings", label: "設定", icon: Settings },
+  { href: "/", label: "首页", icon: Home },
+  { href: "/search", label: "搜索", icon: Search },
+  { href: "/bookmarks", label: "书签", icon: Bookmark },
+  { href: "/settings", label: "设置", icon: Settings },
 ];
 
 export function Header() {
@@ -38,13 +38,13 @@ export function Header() {
           <Link
             href="/"
             className="flex items-center gap-2 font-reading text-xl font-semibold text-text-primary transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-border-focus rounded-lg px-1"
-            aria-label="觀心 — 返回首頁"
+            aria-label="观心 — 返回首页"
           >
-            <span className="text-2xl">觀心</span>
+            <span className="text-2xl">观心</span>
           </Link>
 
           {/* Nav Links */}
-          <nav aria-label="主要導覽" className="flex items-center gap-1">
+          <nav aria-label="主要导航" className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive =
                 item.href === "/"
@@ -83,7 +83,7 @@ export function Header() {
         <button
           onClick={handleMenuToggle}
           className="inline-flex items-center justify-center rounded-lg p-2 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-          aria-label="開啟導覽選單"
+          aria-label="打开导航菜单"
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
         >
@@ -94,9 +94,9 @@ export function Header() {
         <Link
           href="/"
           className="font-reading text-xl font-semibold text-text-primary transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-border-focus rounded-lg px-1"
-          aria-label="觀心 — 返回首頁"
+          aria-label="观心 — 返回首页"
         >
-          觀心
+          观心
         </Link>
 
         {/* Spacer to balance layout */}

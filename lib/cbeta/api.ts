@@ -29,15 +29,13 @@ async function cbetaFetch<T>(path: string): Promise<T | null> {
   }
 }
 
-// Search texts via API route, supports category filter and pagination
+// Search texts via API route, supports pagination
 export async function searchTexts(
   query: string,
-  category?: string,
   offset: number = 0
 ): Promise<SearchResult> {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
-  if (category) params.set("type", category);
   if (offset > 0) params.set("offset", String(offset));
 
   const result = await cbetaFetch<SearchResult>(`/search?${params.toString()}`);

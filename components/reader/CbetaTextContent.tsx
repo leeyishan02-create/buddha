@@ -3,6 +3,7 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { ChevronDown, ChevronUp, BookOpen, X } from "lucide-react";
 import { useReaderContext } from "./ReadingPrefsProvider";
+import { useLocale } from "@/lib/locale/useLocale";
 import type {
   CbetaContent,
   CbetaParagraph,
@@ -68,7 +69,7 @@ function FootnotePopover({
         <button
           onClick={onClose}
           className="rounded p-0.5 text-text-tertiary transition-colors hover:text-text-primary hover:bg-bg-secondary"
-          aria-label="關閉註釋"
+            aria-label="关闭注释"
         >
           <X className="h-3.5 w-3.5" />
         </button>
@@ -108,7 +109,7 @@ function FootnoteBottomSheet({
         className="fixed bottom-0 left-0 right-0 z-50 block rounded-t-2xl border-t border-border bg-bg-elevated p-5 shadow-xl lg:hidden"
         style={{ animation: "slideUp 200ms ease-out" }}
         role="dialog"
-        aria-label={`註釋 ${footnote.label}`}
+        aria-label={`注释 ${footnote.label}`}
       >
         <span className="mx-auto mb-3 block h-1 w-10 rounded-full bg-border" />
         <span className="mb-3 flex items-center justify-between">
@@ -118,7 +119,7 @@ function FootnoteBottomSheet({
           <button
             onClick={onClose}
             className="rounded-lg p-1.5 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary"
-            aria-label="關閉註釋"
+          aria-label="关闭注释"
           >
             <X className="h-5 w-5" />
           </button>
@@ -177,7 +178,7 @@ function ParagraphWithFootnotes({
                     ? "bg-accent text-white"
                     : "text-accent hover:text-accent-hover"
                 }`}
-                aria-label={`查看註釋 ${footnoteRefs[i].label}`}
+                aria-label={`查看注释 ${footnoteRefs[i].label}`}
                 aria-expanded={activeFootnoteId === footnoteRefs[i].id}
               >
                 {footnoteRefs[i].label}
@@ -219,7 +220,7 @@ function MetadataSection({
 
   const fields: { label: string; value?: string }[] = [
     { label: "經文資訊", value: metadata.source },
-    { label: "版本記錄", value: metadata.version },
+    { label: "版本记录", value: metadata.version },
     { label: "編輯說明", value: metadata.editor },
     { label: "原始資料", value: metadata.originalData },
     { label: "其他事項", value: metadata.other },
@@ -281,7 +282,7 @@ function FootnotesList({
       >
         <span className="flex items-center gap-2">
           <BookOpen className="h-4 w-4" aria-hidden="true" />
-          校勘記（{footnotes.length} 則）
+          校勘记（{footnotes.length} 则）
         </span>
         {open ? (
           <ChevronUp className="h-4 w-4" aria-hidden="true" />
@@ -319,6 +320,7 @@ function FootnotesList({
 export function CbetaTextContent({ content }: CbetaTextContentProps) {
   const { fontSize, fontFamily, lineHeight, contentWidth, isLoaded } =
     useReaderContext();
+  const { locale, convert } = useLocale();
   const [activeFootnote, setActiveFootnote] = useState<string | null>(null);
 
   const contentWidthClass = useMemo(
@@ -361,6 +363,47 @@ export function CbetaTextContent({ content }: CbetaTextContentProps) {
     [],
   );
 
+  // Convert content based on locale
+  const convertedContent = useMemo(() => {
+    if (locale === "zh-Hant") return content;
+
+    return {
+      ...content,
+      title: convert(content.title),
+      translator: content.translator ? convert(content.translator) : undefined,
+      fascicles: content.fascicles.map((fascicle) => ({
+        ...fascicle,
+        label: convert(fascicle.label),
+        sections: fascicle.sections.map((section) => ({
+          ...section,
+          title: section.title ? convert(section.title) : undefined,
+          paragraphs: section.paragraphs.map((para) => ({
+            ...para,
+            text: convert(para.text),
+            footnotes: para.footnotes.map((fn) => ({
+              ...fn,
+              label: convert(fn.label),
+            })),
+          })),
+        })),
+      })),
+      footnotes: content.footnotes.map((fn) => ({
+        ...fn,
+        label: convert(fn.label),
+        content: convert(fn.content),
+      })),
+      metadata: content.metadata
+        ? {
+            source: content.metadata.source ? convert(content.metadata.source) : undefined,
+            version: content.metadata.version ? convert(content.metadata.version) : undefined,
+            editor: content.metadata.editor ? convert(content.metadata.editor) : undefined,
+            originalData: content.metadata.originalData ? convert(content.metadata.originalData) : undefined,
+            other: content.metadata.other ? convert(content.metadata.other) : undefined,
+          }
+        : undefined,
+    };
+  }, [content, locale, convert]);
+
   if (!isLoaded) {
     const skeletonWidths = [
       "100%",
@@ -388,17 +431,17 @@ export function CbetaTextContent({ content }: CbetaTextContentProps) {
   }
 
   const activeFootnoteData =
-    activeFootnote && content.footnotes
-      ? content.footnotes.find((f) => f.id === activeFootnote)
+    activeFootnote && convertedContent.footnotes
+      ? convertedContent.footnotes.find((f) => f.id === activeFootnote)
       : null;
 
   return (
     <article
       className={`mx-auto ${contentWidthClass} px-4 py-8 sm:px-6 sm:py-12 ${fontClass} text-text-primary tracking-[0.05em]`}
       role="article"
-      aria-label={content.title}
+      aria-label={convertedContent.title}
     >
-      {content.fascicles.map((fascicle) =>
+      {convertedContent.fascicles.map((fascicle) =>
         fascicle.sections.map((section) => (
           <section
             key={section.id}
@@ -418,7 +461,7 @@ export function CbetaTextContent({ content }: CbetaTextContentProps) {
                   onFootnoteClick={handleFootnoteClick}
                   activeFootnoteId={activeFootnote}
                   textStyle={textStyle}
-                  footnotes={content.footnotes || []}
+                  footnotes={convertedContent.footnotes || []}
                 />
               ))}
             </div>
@@ -427,16 +470,16 @@ export function CbetaTextContent({ content }: CbetaTextContentProps) {
       )}
 
       {/* Collapsible Footnotes List */}
-      {content.footnotes && content.footnotes.length > 0 && (
+      {convertedContent.footnotes && convertedContent.footnotes.length > 0 && (
         <FootnotesList
-          footnotes={content.footnotes}
+          footnotes={convertedContent.footnotes}
           activeFootnoteId={activeFootnote}
           onFootnoteClick={(fnId) => handleFootnoteClick(fnId)}
         />
       )}
 
       {/* Metadata Section */}
-      {content.metadata && <MetadataSection metadata={content.metadata} />}
+      {convertedContent.metadata && <MetadataSection metadata={convertedContent.metadata} />}
 
       {/* Mobile bottom sheet for active footnote */}
       {activeFootnote && activeFootnoteData && (

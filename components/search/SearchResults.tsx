@@ -11,8 +11,8 @@ interface SearchResultsProps {
 
 const SERIES_LABELS: Record<string, string> = {
   T: "大正藏",
-  X: "卍續藏",
-  B: "補編",
+  X: "卍续藏",
+  B: "补编",
   J: "日本",
 };
 
@@ -25,8 +25,8 @@ export function SearchResults({ texts, total }: SearchResultsProps) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-text-secondary">
-        找到 {total} 部經典
-        {texts.length < total && `（顯示前 ${texts.length} 筆）`}
+        找到 {total} 部经典
+        {texts.length < total && `（显示前 ${texts.length} 笔）`}
       </p>
       <div className="space-y-3">
         {texts.map((text) => (
@@ -42,7 +42,7 @@ export function SearchResults({ texts, total }: SearchResultsProps) {
                 </h3>
                 <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
                   {text.translator && (
-                    <span>{text.translator} 譯</span>
+                    <span>{text.translator} </span>
                   )}
                   {text.juan && (
                     <span className="flex items-center gap-1">

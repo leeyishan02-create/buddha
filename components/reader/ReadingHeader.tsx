@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { ArrowLeft, Bookmark, ListTree } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { triggerTocToggle } from "./TocState";
+import { useLocale } from "@/lib/locale/useLocale";
+import { useBookmark } from "@/hooks/useBookmark";
+import type { Bookmark as BookmarkType } from "@/lib/db/bookmarks";
 
 interface ReadingHeaderProps {
   title: string;
@@ -20,13 +23,30 @@ export function ReadingHeader({
   fascicleNum,
   totalFascicles,
 }: ReadingHeaderProps) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { convert } = useLocale();
+
+  // Generate bookmark ID based on current fascicle
+  const bookmarkId = `${catalogId}_vol_${fascicleNum}`;
+  const { isBookmarked, toggleBookmark } = useBookmark(bookmarkId);
 
   const handleBookmark = useCallback(() => {
-    setIsBookmarked((prev) => !prev);
-  }, []);
+    const bookmark: BookmarkType = {
+      id: bookmarkId,
+      catalogId,
+      title: convert(title),
+      translator: convert(translator),
+      paragraphIndex: 0,
+      paragraphText: "",
+      createdAt: new Date().toISOString(),
+    };
+    toggleBookmark(bookmark);
+  }, [bookmarkId, catalogId, title, translator, convert, toggleBookmark]);
 
   const showFascicleInfo = totalFascicles > 1;
+
+  // Convert title and translator to simplified (default locale)
+  const displayTitle = useMemo(() => convert(title), [title, convert]);
+  const displayTranslator = useMemo(() => convert(translator), [translator, convert]);
 
   return (
     <header
@@ -39,16 +59,16 @@ export function ReadingHeader({
           <Link
             href="/"
             className="shrink-0 rounded-lg p-1.5 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-            aria-label="返回首頁"
+            aria-label="返回首页"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="min-w-0">
             <h1 className="truncate font-reading text-base font-semibold text-text-primary sm:text-lg">
-              {title}
+              {displayTitle}
             </h1>
             <div className="flex items-center gap-2 text-xs text-text-secondary font-ui">
-              <span className="truncate">{translator}</span>
+              <span className="truncate">{displayTranslator}</span>
               {showFascicleInfo && (
                 <span className="shrink-0 rounded bg-bg-secondary px-1.5 py-0.5 text-[10px] font-medium">
                   卷 {fascicleNum}/{totalFascicles}
@@ -64,8 +84,8 @@ export function ReadingHeader({
             <button
               onClick={triggerTocToggle}
               className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-              aria-label="開啟目錄"
-              title="目錄"
+              aria-label="打开目录"
+              title="目录"
             >
               <ListTree className="h-5 w-5" />
             </button>
@@ -77,7 +97,7 @@ export function ReadingHeader({
                 ? "text-accent hover:bg-accent-light"
                 : "text-text-secondary hover:bg-bg-secondary hover:text-text-primary"
             }`}
-            aria-label={isBookmarked ? "移除書籤" : "加入書籤"}
+            aria-label={isBookmarked ? "移除书签" : "加入书签"}
             aria-pressed={isBookmarked}
           >
             <Bookmark
@@ -90,3 +110,4 @@ export function ReadingHeader({
     </header>
   );
 }
+

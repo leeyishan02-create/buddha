@@ -11,13 +11,16 @@ interface SearchBarProps {
 }
 
 export function SearchBar({
-  placeholder = "搜尋經典名稱、作者、譯者...",
+  placeholder,
   className = "",
   initialQuery = "",
 }: SearchBarProps) {
-  const [query, setQuery] = useState(initialQuery);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const defaultPlaceholder = "搜索经典名称、作者、译者...";
+
+  const [query, setQuery] = useState(initialQuery);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -39,7 +42,7 @@ export function SearchBar({
     <form
       onSubmit={handleSubmit}
       role="search"
-      aria-label="搜尋佛教經典"
+      aria-label="搜索佛教经典"
       className={`w-full ${className}`}
     >
       <div className="relative flex items-center">
@@ -52,16 +55,16 @@ export function SearchBar({
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
-          aria-label={placeholder}
+          placeholder={placeholder ?? defaultPlaceholder}
+          aria-label={placeholder ?? defaultPlaceholder}
           className="w-full rounded-full border border-border bg-bg-elevated py-3.5 pl-12 pr-24 text-base font-ui text-text-primary placeholder:text-text-tertiary transition-colors focus:border-border-focus focus:outline-none"
         />
         <button
           type="submit"
-          aria-label="搜尋"
+          aria-label="搜索"
           className="absolute right-1.5 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover active:bg-accent-active focus-visible:outline-2 focus-visible:outline-border-focus"
         >
-          搜尋
+          搜索
         </button>
       </div>
     </form>

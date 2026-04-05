@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { Home, Search, Bookmark, Settings } from "lucide-react";
 
 const tabItems = [
-  { href: "/", label: "首頁", icon: Home },
-  { href: "/search", label: "搜尋", icon: Search },
-  { href: "/bookmarks", label: "書籤", icon: Bookmark },
-  { href: "/settings", label: "設定", icon: Settings },
+  { href: "/", label: "首页", icon: Home },
+  { href: "/search", label: "搜索", icon: Search },
+  { href: "/bookmarks", label: "书签", icon: Bookmark },
+  { href: "/settings", label: "设置", icon: Settings },
 ];
 
 export function MobileNav() {
@@ -18,7 +18,7 @@ export function MobileNav() {
     <nav
       className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg-elevated/95 backdrop-blur-sm lg:hidden"
       role="navigation"
-      aria-label="行動裝置導覽"
+      aria-label="移动设备导航"
     >
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-1">
         {tabItems.map((item) => {

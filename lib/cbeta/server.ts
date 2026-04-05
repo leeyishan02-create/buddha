@@ -14,6 +14,7 @@ import type {
   DeerparkWork,
   DeerparkTOC,
 } from "./types";
+import { toSimplified } from "@/lib/locale/convert";
 
 const DEERPARK_API = "https://deerpark.app/api/v1";
 const TIMEOUT_MS = 10000;
@@ -21,19 +22,6 @@ const TIMEOUT_MS = 10000;
 // Cache
 const allWorksCache = { data: null as DeerparkWork[] | null, fetched: 0 };
 const tocCache = new Map<string, DeerparkTOC>();
-
-// Category keyword mapping for classification browsing
-const CATEGORY_KEYWORDS: Record<string, string> = {
-  prajna: "般若",
-  lotus: "法華",
-  avatamsaka: "華嚴",
-  pureland: "阿彌陀",
-  vinaya: "律",
-  abhidharma: "論",
-  esoteric: "陀羅尼",
-  agama: "阿含",
-  jataka: "本緣",
-};
 
 async function fetchWithTimeout(url: string): Promise<Response | null> {
   try {
@@ -60,13 +48,19 @@ async function getAllWorks(): Promise<DeerparkWork[] | null> {
   if (!res || !res.ok) return null;
 
   const data = await res.json();
-  allWorksCache.data = data;
+  // Convert all titles and bylines to Simplified Chinese on cache load
+  allWorksCache.data = data.map((w: DeerparkWork) => ({
+    ...w,
+    title: toSimplified(w.title),
+    byline: toSimplified(w.byline),
+    alias: w.alias ? toSimplified(w.alias) : undefined,
+  }));
   allWorksCache.fetched = Date.now();
-  return data;
+  return allWorksCache.data;
 }
 
 // ============================================
-// Search — T-series only, category support
+// Search — all series
 // ============================================
 
 export interface SearchResult {
@@ -79,7 +73,6 @@ const PAGE_SIZE = 50;
 
 export async function searchCbetaTexts(
   query: string,
-  category?: string,
   offset: number = 0
 ): Promise<SearchResult> {
   const works = await getAllWorks();
@@ -87,24 +80,10 @@ export async function searchCbetaTexts(
 
   if (!works) return emptyResult;
 
-  // Filter: only T-series (大正藏)
-  const taishoWorks = works.filter((w: DeerparkWork) => w.id.startsWith("T"));
-
-  // Apply category filter if provided
-  let filteredWorks = taishoWorks;
-  if (category && CATEGORY_KEYWORDS[category]) {
-    const keyword = CATEGORY_KEYWORDS[category];
-    filteredWorks = taishoWorks.filter(
-      (w: DeerparkWork) =>
-        w.title.includes(keyword) ||
-        w.byline.includes(keyword)
-    );
-  }
-
-  // If no query and no category, return all T-series
-  if (!query.trim() && !category) {
-    const total = taishoWorks.length;
-    const page = taishoWorks.slice(offset, offset + PAGE_SIZE);
+  // If no query, return all works
+  if (!query.trim()) {
+    const total = works.length;
+    const page = works.slice(offset, offset + PAGE_SIZE);
     return {
       texts: page.map((w: DeerparkWork) => ({
         id: w.id,
@@ -119,37 +98,19 @@ export async function searchCbetaTexts(
     };
   }
 
-  // If no query but has category, return category-filtered results
-  if (!query.trim() && category) {
-    const total = filteredWorks.length;
-    const page = filteredWorks.slice(offset, offset + PAGE_SIZE);
-    return {
-      texts: page.map((w: DeerparkWork) => ({
-        id: w.id,
-        title: w.title,
-        translator: w.byline || "",
-        vol: w.id.substring(0, 3),
-        juan: String(w.juans.length),
-        category: w.id.substring(0, 1),
-      })),
-      total,
-      hasMore: offset + PAGE_SIZE < total,
-    };
-  }
-
-  // Search by query
-  const lowerQuery = query.toLowerCase();
-  const matchedWorks = filteredWorks.filter(
+  // Search by query — normalize to Simplified for matching
+  const normalizedQuery = toSimplified(query).toLowerCase();
+  const matchedWorks = works.filter(
     (w: DeerparkWork) =>
-      w.title.toLowerCase().includes(lowerQuery) ||
-      w.byline.toLowerCase().includes(lowerQuery) ||
-      (w.alias && w.alias.toLowerCase().includes(lowerQuery))
+      w.title.toLowerCase().includes(normalizedQuery) ||
+      w.byline.toLowerCase().includes(normalizedQuery) ||
+      (w.alias && w.alias.toLowerCase().includes(normalizedQuery))
   );
 
   // Sort: exact title match first, then shorter title
   matchedWorks.sort((a: DeerparkWork, b: DeerparkWork) => {
-    const aExactMatch = a.title === query || a.title.includes(query);
-    const bExactMatch = b.title === query || b.title.includes(query);
+    const aExactMatch = a.title === toSimplified(query) || a.title.includes(toSimplified(query));
+    const bExactMatch = b.title === toSimplified(query) || b.title.includes(toSimplified(query));
     if (aExactMatch && !bExactMatch) return -1;
     if (!aExactMatch && bExactMatch) return 1;
 
@@ -204,6 +165,13 @@ export async function getTableOfContents(id: string): Promise<CbetaFascicleInfo[
 // Get text content
 // ============================================
 
+// Get a single work from allWorks cache
+async function getWorkById(id: string): Promise<DeerparkWork | null> {
+  const works = await getAllWorks();
+  if (!works) return null;
+  return works.find((w: DeerparkWork) => w.id === id) ?? null;
+}
+
 export async function getTextContent(
   id: string,
   fascicleNum: number = 1
@@ -215,23 +183,24 @@ export async function getTextContent(
   if (!res || !res.ok) return null;
 
   const html = await res.text();
-  return parseHtmlToContent(html, id, fascicleNum);
+
+  // Get translator from allWorks API for consistency with search results
+  const work = await getWorkById(id);
+  const translator = work?.byline || undefined;
+
+  return parseHtmlToContent(html, id, fascicleNum, translator);
 }
 
 // Parse Deer Park HTML to structured content
 function parseHtmlToContent(
   html: string,
   id: string,
-  fascicleNum: number
+  fascicleNum: number,
+  translator?: string
 ): CbetaContent | null {
   try {
     const titleMatch = html.match(/<h1 id="title">(.*?)<\/h1>/);
     const title = titleMatch ? titleMatch[1].trim() : id;
-
-    const bylineMatch = html.match(/<p class="byline">(.*?)<\/p>/);
-    const translator = bylineMatch
-      ? bylineMatch[1].replace(/<[^>]+>/g, "").trim()
-      : undefined;
 
     const bodyMatch = html.match(/<section class="sutra-body">([\s\S]*?)<\/section>/);
     if (!bodyMatch) return null;
@@ -327,6 +296,6 @@ export async function getFeaturedTexts(ids: string[]): Promise<CbetaText[]> {
   return results;
 }
 
-export function getTaishoTextCount(): number {
-  return allWorksCache.data?.length ?? 4303;
+export function getTotalTextCount(): number {
+  return allWorksCache.data?.length ?? 4600;
 }

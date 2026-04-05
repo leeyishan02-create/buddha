@@ -73,15 +73,3 @@ export const featuredTexts: BuddhistText[] = [
     description: '佛教重要經典，闡述法界緣起',
   },
 ];
-
-export const categories: Category[] = [
-  { id: 'prajna', label: '般若部' },
-  { id: 'lotus', label: '法華部' },
-  { id: 'avatamsaka', label: '華嚴部' },
-  { id: 'pureland', label: '淨土部' },
-  { id: 'vinaya', label: '律部' },
-  { id: 'abhidharma', label: '論部' },
-  { id: 'esoteric', label: '密教部' },
-  { id: 'agama', label: '阿含部' },
-  { id: 'jataka', label: '本緣部' },
-];

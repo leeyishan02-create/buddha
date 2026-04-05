@@ -1,9 +1,7 @@
 import { SearchBar } from "@/components/ui/SearchBar";
 import { TextCard } from "@/components/ui/TextCard";
-import { CategoryChip } from "@/components/ui/CategoryChip";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { RecentlyReadSection } from "@/components/home/RecentlyReadSection";
-import { categories } from "@/lib/data/mock-texts";
 import { getFeaturedTexts } from "@/lib/cbeta/server";
 import { ArrowRight } from "lucide-react";
 
@@ -12,6 +10,7 @@ const FEATURED_IDS = ["T0235", "T0251", "T0262", "T0366", "T0586", "T0278"];
 export default async function Home() {
   const cbetaTexts = await getFeaturedTexts(FEATURED_IDS);
 
+  // Data from getAllWorks() is already Simplified Chinese
   const featuredTexts = cbetaTexts.map((t) => ({
     id: t.id,
     title: t.title,
@@ -28,14 +27,14 @@ export default async function Home() {
         {/* Brand */}
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-2xl font-bold text-white font-reading shadow-lg shadow-accent/20">
-            觀
+            观
           </div>
         </div>
         <h1 className="mb-3 text-4xl font-bold font-reading text-text-primary sm:text-5xl">
-          觀心
+          观心
         </h1>
         <p className="mb-8 max-w-md text-lg leading-relaxed text-text-secondary font-reading sm:text-xl">
-          探索佛教經典，從大藏經中尋找智慧
+          探索佛教经典，从大藏经中寻找智慧
         </p>
 
         {/* Search Bar */}
@@ -46,9 +45,9 @@ export default async function Home() {
       {featuredTexts.length > 0 && (
         <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
           <SectionHeader
-            title="熱門經典"
+            title="热门经典"
             viewAllHref="/search"
-            viewAllLabel="瀏覽全部經典"
+            viewAllLabel="浏览全部经典"
             className="mb-5"
           />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -58,37 +57,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
-      {/* ===== Category Browse Section ===== */}
-      <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <SectionHeader
-          title="分類瀏覽"
-          className="mb-5"
-        />
-        <div
-          className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin"
-          role="list"
-          aria-label="經典分類"
-        >
-          {categories.map((cat) => (
-            <CategoryChip
-              key={cat.id}
-              label={cat.label}
-              href={`/search?type=${cat.id}`}
-            />
-          ))}
-          {/* "More" chip */}
-          <a
-            href="/search"
-            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-bg-elevated px-4 py-2 text-sm font-ui font-medium text-text-secondary transition-all duration-200 hover:border-accent hover:text-accent hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-border-focus"
-            aria-label="瀏覽更多分類"
-            role="listitem"
-          >
-            更多
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-          </a>
-        </div>
-      </section>
 
       {/* ===== Recently Read Section (conditional) ===== */}
       <RecentlyReadSection />
