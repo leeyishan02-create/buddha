@@ -1,6 +1,6 @@
 // ============================================
-// CBETA Server-side API Functions
-// Uses local search index + CBETA HTML API
+// Deer Park API Server-side Functions
+// Uses deerpark.app API
 // ============================================
 
 import type {
@@ -12,204 +12,217 @@ import type {
   CbetaFootnote,
   CbetaFootnoteRef,
   CbetaMetadata,
+  CbetaFascicleInfo,
+  DeerparkWork,
+  DeerparkTOC,
 } from "./types";
 
-import searchIndex from "./search-index.json";
+const DEERPARK_API = "https://deerpark.app/api/v1";
+const TIMEOUT_MS = 10000;
 
-// Search texts using local index
-export async function searchCbetaTexts(query: string): Promise<CbetaText[] | null> {
-  if (!query.trim()) return null;
+// Cache
+const allWorksCache = { data: null as DeerparkWork[] | null, fetched: 0 };
+const tocCache = new Map<string, DeerparkTOC>();
 
-  const lowerQuery = query.toLowerCase();
-  const results = searchIndex.texts
-    .filter((t) => t.searchableText.includes(lowerQuery))
-    .slice(0, 50)
-    .map((t) => ({
-      id: t.id,
-      title: t.title,
-      author: t.author,
-      translator: t.author,
-      vol: t.id.substring(0, 3),
-      juan: "",
-      category: t.edition,
-    }));
-
-  return results.length > 0 ? results : null;
-}
-
-// Get text detail from local index
-export async function getTextDetail(id: string): Promise<CbetaText | null> {
-  const entry = searchIndex.texts.find((t) => t.id === id);
-  if (!entry) return null;
-
-  return {
-    id: entry.id,
-    title: entry.title,
-    author: entry.author,
-    translator: entry.author,
-    vol: entry.id.substring(0, 3),
-    juan: "",
-    category: entry.edition,
-  };
-}
-
-// Get text content as HTML from CBETA API
-export async function getTextHtml(id: string): Promise<string | null> {
+async function fetchWithTimeout(url: string): Promise<Response | null> {
   try {
-    const res = await fetch(`http://cbdata.dila.edu.tw/stable/download/html/${id}_001.html`, {
-      next: { revalidate: 3600 },
-    });
-
-    if (!res.ok) {
-      if (res.status === 404) return null;
-      console.error(`CBETA HTML error: ${res.status} ${res.statusText}`);
-      return null;
-    }
-
-    return res.text();
-  } catch (error) {
-    console.error("CBETA HTML fetch error:", error);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return res;
+  } catch {
     return null;
   }
 }
 
-// Get text content as structured data
-export async function getTextContent(id: string): Promise<CbetaContent | null> {
-  const html = await getTextHtml(id);
-  if (!html) return null;
+// ============================================
+// All Works (for search index)
+// ============================================
 
-  return parseHtmlToContent(html, id);
+async function getAllWorks(): Promise<DeerparkWork[] | null> {
+  // Cache for 1 hour
+  if (allWorksCache.data && Date.now() - allWorksCache.fetched < 3600000) {
+    return allWorksCache.data;
+  }
+
+  const res = await fetchWithTimeout(`${DEERPARK_API}/allworks`);
+  if (!res || !res.ok) return null;
+
+  const data = await res.json();
+  allWorksCache.data = data;
+  allWorksCache.fetched = Date.now();
+  return data;
 }
 
-// Parse CBETA HTML to structured content with footnotes and metadata
-function parseHtmlToContent(html: string, id: string): CbetaContent | null {
+// ============================================
+// Search
+// ============================================
+
+export async function searchCbetaTexts(query: string): Promise<CbetaText[] | null> {
+  if (!query.trim()) return null;
+
+  // Try full-text search first
+  const res = await fetchWithTimeout(
+    `${DEERPARK_API}/fts/works/${encodeURIComponent(query)}`
+  );
+
+  if (res && res.ok) {
+    const data = await res.json();
+    if (data.found > 0 && data.works?.length > 0) {
+      return data.works.slice(0, 50).map((w: any) => ({
+        id: w.id,
+        title: w.title,
+        translator: parseByline(w.byline),
+        vol: w.id.substring(0, 3),
+        juan: String(w.juans.length),
+        category: w.id.substring(0, 1),
+      }));
+    }
+  }
+
+  // Fallback: search in allworks
+  const works = await getAllWorks();
+  if (!works) return null;
+
+  const lowerQuery = query.toLowerCase();
+  return works
+    .filter(
+      (w) =>
+        w.title.toLowerCase().includes(lowerQuery) ||
+        w.byline.toLowerCase().includes(lowerQuery) ||
+        (w.alias && w.alias.toLowerCase().includes(lowerQuery))
+    )
+    .slice(0, 50)
+    .map((w) => ({
+      id: w.id,
+      title: w.title,
+      translator: parseByline(w.byline),
+      vol: w.id.substring(0, 3),
+      juan: String(w.juans.length),
+      category: w.id.substring(0, 1),
+    }));
+}
+
+function parseByline(byline: string): string {
+  return byline || "";
+}
+
+// ============================================
+// TOC
+// ============================================
+
+export async function getTableOfContents(id: string): Promise<CbetaFascicleInfo[]> {
+  if (tocCache.has(id)) {
+    const cached = tocCache.get(id)!;
+    return cached.juans.map((j) => ({
+      num: j.juan,
+      title: j.title || `卷第${j.juan}`,
+      id: `${id}_${String(j.juan).padStart(3, "0")}`,
+    }));
+  }
+
+  const res = await fetchWithTimeout(`${DEERPARK_API}/toc/${id}`);
+  if (!res || !res.ok) return [];
+
+  const toc: DeerparkTOC = await res.json();
+  tocCache.set(id, toc);
+
+  return toc.juans.map((j) => ({
+    num: j.juan,
+    title: j.title || `卷第${j.juan}`,
+    id: `${id}_${String(j.juan).padStart(3, "0")}`,
+  }));
+}
+
+// ============================================
+// Get text content
+// ============================================
+
+export async function getTextContent(
+  id: string,
+  fascicleNum: number = 1
+): Promise<CbetaContent | null> {
+  const res = await fetchWithTimeout(
+    `${DEERPARK_API}/html/${id}/${fascicleNum}`
+  );
+
+  if (!res || !res.ok) return null;
+
+  const html = await res.text();
+  return parseHtmlToContent(html, id, fascicleNum);
+}
+
+// Parse Deer Park HTML to structured content
+function parseHtmlToContent(
+  html: string,
+  id: string,
+  fascicleNum: number
+): CbetaContent | null {
   try {
-    // Extract title
-    const titleMatch = html.match(/<title>(.*?)<\/title>/);
-    const title = titleMatch
-      ? titleMatch[1].replace(/\s*-\s*CBETA.*$/, "").trim()
-      : id;
+    // Extract title from <h1 id="title">
+    const titleMatch = html.match(/<h1 id="title">(.*?)<\/h1>/);
+    const title = titleMatch ? titleMatch[1].trim() : id;
 
-    // Extract translator
-    const translatorMatch = html.match(
-      /(?:譯|譯者)[：:]?\s*([^\n<]+)/
-    );
-    const translator = translatorMatch ? translatorMatch[1].trim() : undefined;
+    // Extract byline from <p class="byline">
+    const bylineMatch = html.match(/<p class="byline">(.*?)<\/p>/);
+    const translator = bylineMatch
+      ? bylineMatch[1].replace(/<[^>]+>/g, "").trim()
+      : undefined;
 
-    // Extract footnotes: <span class='footnote' id='n...'>...</span>
-    const footnotes: CbetaFootnote[] = [];
-    const footnoteRegex = /<span\s+class=['"]footnote['"]\s+id=['"](n[^"']+)['"][^>]*>([\s\S]*?)<\/span>/g;
-    let fnMatch;
-    while ((fnMatch = footnoteRegex.exec(html)) !== null) {
-      const fnId = fnMatch[1];
-      const rawContent = fnMatch[2]
+    // Extract paragraphs from <article class="sutra-content">
+    // Deer Park uses <p> tags with <span class="t"> for text
+    const bodyMatch = html.match(/<section class="sutra-body">([\s\S]*?)<\/section>/);
+    if (!bodyMatch) return null;
+
+    const bodyHtml = bodyMatch[1];
+    const paragraphs: CbetaParagraph[] = [];
+
+    // Extract paragraphs - Deer Park uses <p> tags
+    const paraRegex = /<p[^>]*>([\s\S]*?)<\/p>/g;
+    let paraMatch;
+
+    while ((paraMatch = paraRegex.exec(bodyHtml)) !== null) {
+      const rawHtml = paraMatch[1];
+
+      // Skip byline paragraphs
+      if (rawHtml.includes('class="byline"')) continue;
+
+      // Extract text content, removing ALL footnote anchors and HTML tags
+      const text = rawHtml
+        .replace(/<a[^>]*class="noteAnchor"[^>]*>[\s\S]*?<\/a>/g, "")
+        .replace(/<span class="lb"[^>]*>[\s\S]*?<\/span>/g, "")
+        .replace(/<span[^>]*>/g, "")
+        .replace(/<\/span>/g, "")
         .replace(/<[^>]+>/g, "")
         .replace(/&nbsp;/g, " ")
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
         .replace(/&amp;/g, "&")
-        .trim();
-
-      // Extract label like [0749001] or [A1]
-      const labelMatch = rawContent.match(/^(\[[^\]]+\])\s*/);
-      const label = labelMatch ? labelMatch[1] : fnId;
-      const content = labelMatch ? rawContent.slice(labelMatch[0].length).trim() : rawContent;
-
-      // Find corresponding anchor
-      const anchorMatch = html.match(new RegExp(`id=['"](${fnId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('n', 'note_anchor_')}|cb_note_anchor\\d+)['"]`));
-      const anchorId = anchorMatch ? anchorMatch[1] : fnId;
-
-      footnotes.push({
-        id: fnId,
-        anchorId,
-        label,
-        content,
-      });
-    }
-
-    // Extract metadata from cbeta-copyright div
-    const copyrightMatch = html.match(/<div\s+id=['"]cbeta-copyright['"][^>]*>([\s\S]*?)<\/div>/);
-    let metadata: CbetaMetadata | undefined;
-    if (copyrightMatch) {
-      const copyrightHtml = copyrightMatch[1];
-      const textContent = copyrightHtml
-        .replace(/<[^>]+>/g, " ")
-        .replace(/&nbsp;/g, " ")
         .replace(/\s+/g, " ")
         .trim();
 
-      metadata = {};
-      const sourceMatch = textContent.match(/【經文資訊】(.+?)(?=【|$)/);
-      if (sourceMatch) metadata.source = sourceMatch[1].trim();
-      const versionMatch = textContent.match(/【版本記錄】(.+?)(?=【|$)/);
-      if (versionMatch) metadata.version = versionMatch[1].trim();
-      const editorMatch = textContent.match(/【編輯說明】(.+?)(?=【|$)/);
-      if (editorMatch) metadata.editor = editorMatch[1].trim();
-      const origMatch = textContent.match(/【原始資料】(.+?)(?=【|$)/);
-      if (origMatch) metadata.originalData = origMatch[1].trim();
-      const otherMatch = textContent.match(/【其他事項】(.+?)(?=【|$)/);
-      if (otherMatch) metadata.other = otherMatch[1].trim();
+      if (text) {
+        paragraphs.push({ text, footnotes: [] });
+      }
     }
 
-    // Create a clean version of HTML for paragraph extraction
-    // Remove footnote spans and copyright div
-    let cleanHtml = html
-      .replace(/<span\s+class=['"]footnote['"][^>]*>[\s\S]*?<\/span>/g, "")
-      .replace(/<div\s+id=['"]cbeta-copyright['"][^>]*>[\s\S]*?<\/div>/g, "")
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/g, "")
-      .replace(/<head[^>]*>[\s\S]*?<\/head>/g, "")
-      .replace(/<html[^>]*>|<\/html>|<body[^>]*>|<\/body>|<div\s+id=['"]body['"]>|<\/div>/g, "");
-
-    // Parse sections and paragraphs
+    // Build sections from paragraphs
+    // Deer Park doesn't have explicit section markers, so we group all paragraphs
     const sections: CbetaSection[] = [];
-
-    // Try to extract by 分/品/卷 markers in headings
-    const sectionRegex = /<h[1-6][^>]*>([^<]*?(?:分|品|卷)[^<]*?)<\/h[1-6]>/g;
-    let sectionMatch;
-    const sectionRanges: { title: string; start: number; end: number }[] = [];
-
-    while ((sectionMatch = sectionRegex.exec(cleanHtml)) !== null) {
-      sectionRanges.push({
-        title: sectionMatch[1].trim(),
-        start: sectionMatch.index,
-        end: sectionRegex.lastIndex,
+    if (paragraphs.length > 0) {
+      sections.push({
+        id: "sec-1",
+        title: undefined,
+        paragraphs,
       });
     }
 
-    // If no sections found, treat entire content as one section
-    if (sectionRanges.length === 0) {
-      const paragraphs = extractParagraphs(cleanHtml, footnotes);
-      if (paragraphs.length > 0) {
-        sections.push({
-          id: "sec-1",
-          title: undefined,
-          paragraphs,
-        });
-      }
-    } else {
-      // Extract paragraphs for each section
-      for (let i = 0; i < sectionRanges.length; i++) {
-        const current = sectionRanges[i];
-        const next = sectionRanges[i + 1];
-        const sectionHtml = next
-          ? cleanHtml.substring(current.end, next.start)
-          : cleanHtml.substring(current.end);
-
-        const paragraphs = extractParagraphs(sectionHtml, footnotes);
-
-        if (paragraphs.length > 0) {
-          sections.push({
-            id: `sec-${sections.length + 1}`,
-            title: current.title,
-            paragraphs,
-          });
-        }
-      }
-    }
+    const paddedNum = String(fascicleNum).padStart(3, "0");
 
     const fascicle: CbetaFascicleContent = {
-      id: `${id}-vol01`,
-      label: "全一卷",
+      id: `${id}_${paddedNum}`,
+      label: `卷${fascicleNum}`,
       sections,
     };
 
@@ -219,8 +232,16 @@ function parseHtmlToContent(html: string, id: string): CbetaContent | null {
       translator,
       canon: "T",
       fascicles: [fascicle],
-      footnotes,
-      metadata,
+      footnotes: [],
+      metadata: {
+        source: `Deer Park API (${id})`,
+        version: undefined,
+        editor: undefined,
+        originalData: "CBETA (CC BY-NC-SA 3.0)",
+        other: undefined,
+      },
+      fascicleNum: fascicleNum,
+      totalFascicles: 1, // Will be updated by TOC API
     };
   } catch (error) {
     console.error("HTML parse error:", error);
@@ -228,71 +249,31 @@ function parseHtmlToContent(html: string, id: string): CbetaContent | null {
   }
 }
 
-// Extract paragraphs from HTML, preserving footnote references
-function extractParagraphs(html: string, footnotes: CbetaFootnote[]): CbetaParagraph[] {
-  const paragraphs: CbetaParagraph[] = [];
-  const paraRegex = /<p[^>]*>([\s\S]*?)<\/p>/g;
-  let paraMatch;
+// ============================================
+// Featured texts
+// ============================================
 
-  while ((paraMatch = paraRegex.exec(html)) !== null) {
-    const rawHtml = paraMatch[1];
-
-    // Extract footnote references: <a id="note_anchor_..." class="noteAnchor" href="#n...">[27]</a>
-    const footnoteRefs: CbetaFootnoteRef[] = [];
-    const anchorRegex = /<a\s+[^>]*id=['"](note_anchor_[^"']+)['"][^>]*href=['"]#([^"']+)['"][^>]*>(\[[^\]]+\])<\/a>/g;
-    let anchorMatch;
-    while ((anchorMatch = anchorRegex.exec(rawHtml)) !== null) {
-      footnoteRefs.push({
-        id: anchorMatch[2], // e.g., n0748027
-        label: anchorMatch[3], // e.g., [27]
-        anchorId: anchorMatch[1], // e.g., note_anchor_0748027
-      });
-    }
-
-    // Clean text: remove all HTML tags, line info spans, but keep footnote markers
-    const text = rawHtml
-      .replace(/<a\s+[^>]*class=['"]noteAnchor['"][^>]*>[\s\S]*?<\/a>/g, "§FOOTNOTE§")
-      .replace(/<span\s+class=['"]lineInfo['"][^>]*>[\s\S]*?<\/span>/g, "")
-      .replace(/<[^>]+>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&amp;/g, "&")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    if (text) {
-      paragraphs.push({
-        text,
-        footnotes: footnoteRefs,
-      });
-    }
-  }
-
-  return paragraphs;
-}
-
-// Get featured texts from local index
 export async function getFeaturedTexts(ids: string[]): Promise<CbetaText[]> {
+  const works = await getAllWorks();
+  if (!works) return [];
+
   const results: CbetaText[] = [];
   for (const id of ids) {
-    const entry = searchIndex.texts.find((t) => t.id === id);
-    if (entry) {
+    const work = works.find((w) => w.id === id);
+    if (work) {
       results.push({
-        id: entry.id,
-        title: entry.title,
-        author: entry.author || undefined,
-        translator: entry.author || undefined,
-        vol: entry.id.substring(0, 3),
-        juan: "",
-        category: entry.edition || undefined,
+        id: work.id,
+        title: work.title,
+        translator: parseByline(work.byline),
+        vol: work.id.substring(0, 3),
+        juan: String(work.juans.length),
+        category: work.id.substring(0, 1),
       });
     }
   }
   return results;
 }
 
-// Get all Taisho texts count
 export function getTaishoTextCount(): number {
-  return searchIndex.totalTexts;
+  return allWorksCache.data?.length ?? 4303;
 }

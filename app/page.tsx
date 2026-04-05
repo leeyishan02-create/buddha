@@ -15,7 +15,7 @@ export default async function Home() {
   const featuredTexts = cbetaTexts.map((t) => ({
     id: t.id,
     title: t.title,
-    translator: t.author ?? "",
+    translator: t.translator ?? "",
     volumes: t.juan ? parseInt(t.juan) || 1 : 1,
     canon: t.vol?.replace(/\d+/, "") || "T",
     description: "",

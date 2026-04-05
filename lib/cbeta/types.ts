@@ -1,14 +1,62 @@
 // ============================================
-// CBETA API Type Definitions
-// Based on cbdata.dila.edu.tw API
+// Deer Park API Type Definitions
+// Based on deerpark.app API
 // ============================================
 
-export interface CbetaCatalogEntry {
+export interface DeerparkWork {
   id: string;
-  n: string;
-  label: string;
-  node_type: string;
-  children?: CbetaCatalogEntry[];
+  title: string;
+  byline: string;
+  juans: number[];
+  chars: number;
+  alias?: string;
+  alt?: string;
+}
+
+export interface DeerparkJuan {
+  file: string;
+  lb: string;
+  juan: number;
+  title: string;
+}
+
+export interface DeerparkMulu {
+  indent: number;
+  title: string;
+  juan: number;
+  lb: string;
+}
+
+export interface DeerparkTOC {
+  juans: DeerparkJuan[];
+  mulu: DeerparkMulu[];
+}
+
+export interface DeerparkSearchResult {
+  found: number;
+  works: {
+    search_results: number;
+    id: string;
+    title: string;
+    byline: string;
+    juans: number[];
+    chars: number;
+  }[];
+}
+
+export interface DeerparkInTextSearchResult {
+  found: number;
+  results: {
+    juan: number;
+    lb: string;
+    paragraph: string;
+  }[];
+}
+
+export interface CbetaFascicleInfo {
+  num: number;
+  title: string;
+  id: string;
 }
 
 export interface CbetaText {
@@ -19,36 +67,6 @@ export interface CbetaText {
   juan?: string;
   vol: string;
   category?: string;
-}
-
-export interface CbetaSearchResult {
-  results: CbetaText[];
-  total?: number;
-}
-
-export interface CbetaTextDetail {
-  id: string;
-  title: string;
-  translator?: string;
-  author?: string;
-  vol: string;
-  juan?: string;
-  category?: string;
-}
-
-export interface CbetaFascicle {
-  id: string;
-  label: string;
-  number: number;
-  title?: string;
-}
-
-export interface CbetaContent {
-  id: string;
-  title: string;
-  translator?: string;
-  canon: string;
-  fascicles: CbetaFascicleContent[];
 }
 
 export interface CbetaFascicleContent {
@@ -97,126 +115,8 @@ export interface CbetaContent {
   fascicles: CbetaFascicleContent[];
   footnotes: CbetaFootnote[];
   metadata?: CbetaMetadata;
-}
-
-export interface CbetaSection {
-  id: string;
-  title?: string;
-  paragraphs: CbetaParagraph[];
-}
-
-export interface CbetaParagraph {
-  text: string;
-  footnotes: CbetaFootnoteRef[];
-}
-
-export interface CbetaFootnoteRef {
-  id: string;
-  label: string;
-  anchorId: string;
-}
-
-export interface CbetaFootnote {
-  id: string;
-  anchorId: string;
-  label: string;
-  content: string;
-}
-
-export interface CbetaMetadata {
-  source?: string;
-  version?: string;
-  editor?: string;
-  originalData?: string;
-  other?: string;
-}
-
-export interface CbetaContent {
-  id: string;
-  title: string;
-  translator?: string;
-  canon: string;
-  fascicles: CbetaFascicleContent[];
-  footnotes: CbetaFootnote[];
-  metadata?: CbetaMetadata;
-}
-
-export interface CbetaSection {
-  id: string;
-  title?: string;
-  paragraphs: CbetaParagraph[];
-}
-
-export interface CbetaParagraph {
-  text: string;
-  footnotes: CbetaFootnoteRef[];
-}
-
-export interface CbetaFootnoteRef {
-  id: string;
-  label: string;
-  anchorId: string;
-}
-
-export interface CbetaFootnote {
-  id: string;
-  anchorId: string;
-  label: string;
-  content: string;
-}
-
-export interface CbetaMetadata {
-  source?: string;
-  version?: string;
-  editor?: string;
-  originalData?: string;
-  other?: string;
-}
-
-export interface CbetaContent {
-  id: string;
-  title: string;
-  translator?: string;
-  canon: string;
-  fascicles: CbetaFascicleContent[];
-  footnotes: CbetaFootnote[];
-  metadata?: CbetaMetadata;
-}
-
-export interface CbetaParagraph {
-  text: string;
-  footnotes: CbetaFootnoteRef[];
-}
-
-export interface CbetaFootnoteRef {
-  id: string;
-  label: string;
-  anchorId: string;
-}
-
-export interface CbetaFootnote {
-  id: string;
-  anchorId: string;
-  label: string;
-  content: string;
-}
-
-export interface CbetaMetadata {
-  source?: string;
-  version?: string;
-  editor?: string;
-  originalData?: string;
-  other?: string;
-}
-
-export interface CbetaContent {
-  id: string;
-  title: string;
-  translator?: string;
-  canon: string;
-  fascicles: CbetaFascicleContent[];
-  footnotes: CbetaFootnote[];
-  metadata?: CbetaMetadata;
+  fascicleNum: number;
+  totalFascicles: number;
 }
 
 export type SearchType = "title" | "author" | "translator" | "all";
