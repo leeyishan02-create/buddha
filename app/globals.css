@@ -116,6 +116,8 @@
   /* Font families — next/font variables are set on <html> */
   --font-reading: var(--font-noto-serif-tc), "Source Han Serif TC", "Songti TC", serif;
   --font-ui: var(--font-noto-sans-tc), "Source Han Sans TC", "PingFang TC", sans-serif;
+  --font-kai: "KaiTi", "STKaiti", "AR PL UKai CN", "BiauKai", serif;
+  --font-fangsong: "FangSong", "STFangsong", "AR PL New Sung", serif;
   --font-gaiji: "HanaMinA", "HanaMinB", "BabelStone Han", serif;
 
   /* Reading font sizes with proper line-height and letter-spacing */
@@ -142,6 +144,14 @@
   --text-reading-2xl: 1.75rem;
   --leading-reading-2xl: 2.2;
   --tracking-reading-2xl: 0.03em;
+
+  --text-reading-3xl: 2rem;
+  --leading-reading-3xl: 2.2;
+  --tracking-reading-3xl: 0.03em;
+
+  --text-reading-4xl: 2.125rem;
+  --leading-reading-4xl: 2.2;
+  --tracking-reading-4xl: 0.03em;
 }
 
 /* ---------- Base Styles ---------- */
@@ -197,4 +207,26 @@ body {
   transition: background-color 0.3s ease,
               color 0.3s ease,
               border-color 0.3s ease;
+}
+
+/* ---------- Popover Animations ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ---------- Popover Animations ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }

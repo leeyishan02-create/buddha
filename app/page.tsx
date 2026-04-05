@@ -3,10 +3,24 @@ import { TextCard } from "@/components/ui/TextCard";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { RecentlyReadSection } from "@/components/home/RecentlyReadSection";
-import { featuredTexts, categories } from "@/lib/data/mock-texts";
+import { categories } from "@/lib/data/mock-texts";
+import { getFeaturedTexts } from "@/lib/cbeta/server";
 import { ArrowRight } from "lucide-react";
 
-export default function Home() {
+const FEATURED_IDS = ["T0235", "T0251", "T0262", "T0279", "T0237", "T0278"];
+
+export default async function Home() {
+  const cbetaTexts = await getFeaturedTexts(FEATURED_IDS);
+
+  const featuredTexts = cbetaTexts.map((t) => ({
+    id: t.id,
+    title: t.title,
+    translator: t.author ?? "",
+    volumes: t.juan ? parseInt(t.juan) || 1 : 1,
+    canon: t.vol?.replace(/\d+/, "") || "T",
+    description: "",
+  }));
+
   return (
     <div className="flex flex-col gap-12 pb-24 lg:pb-12">
       {/* ===== Hero Section ===== */}
@@ -29,19 +43,21 @@ export default function Home() {
       </section>
 
       {/* ===== Featured Texts Section ===== */}
-      <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <SectionHeader
-          title="熱門經典"
-          viewAllHref="/search"
-          viewAllLabel="瀏覽全部經典"
-          className="mb-5"
-        />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredTexts.map((text) => (
-            <TextCard key={text.id} text={text} />
-          ))}
-        </div>
-      </section>
+      {featuredTexts.length > 0 && (
+        <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+          <SectionHeader
+            title="熱門經典"
+            viewAllHref="/search"
+            viewAllLabel="瀏覽全部經典"
+            className="mb-5"
+          />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredTexts.map((text) => (
+              <TextCard key={text.id} text={text} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ===== Category Browse Section ===== */}
       <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">

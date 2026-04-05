@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/build-search-index.js && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "update-index": "node scripts/build-search-index.js"
   },
   "dependencies": {
     "lucide-react": "^1.7.0",

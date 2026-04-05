@@ -50,7 +50,7 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-function useThemeContext(): ThemeContextValue {
+export function useThemeContext(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error("useThemeContext must be used inside ThemeProvider");
   return ctx;
