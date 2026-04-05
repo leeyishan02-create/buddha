@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { Moon, Sun, BookOpen } from "lucide-react";
 
 export type Theme = "light" | "dark" | "sepia";
@@ -19,7 +26,7 @@ const THEME_ICONS: Record<Theme, React.ElementType> = {
   sepia: BookOpen,
 };
 
-function getInitialTheme(): Theme {
+function readStoredTheme(): Theme {
   if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem("buddha-theme") as Theme | null;
   if (stored && THEMES.includes(stored)) return stored;
@@ -36,31 +43,67 @@ function applyTheme(theme: Theme) {
   localStorage.setItem("buddha-theme", theme);
 }
 
-// Client-only wrapper to avoid hydration mismatch
-function ClientOnly({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-  return <>{children}</>;
+interface ThemeContextValue {
+  theme: Theme;
+  cycleTheme: () => void;
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    const theme = getInitialTheme();
-    applyTheme(theme);
-  }, []);
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-  return <>{children}</>;
+function useThemeContext(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useThemeContext must be used inside ThemeProvider");
+  return ctx;
 }
 
-export function ThemeToggle() {
+/**
+ * Inline script that runs before React hydration.
+ * Reads localStorage and sets data-theme on <html> immediately,
+ * preventing any flash of wrong theme on page navigation.
+ */
+function ThemeInitScript() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          (function(){
+            try {
+              var t = localStorage.getItem('buddha-theme');
+              if (t && t !== 'light') {
+                document.documentElement.setAttribute('data-theme', t);
+              } else {
+                document.documentElement.removeAttribute('data-theme');
+              }
+            } catch(e) {}
+          })();
+        `.replace(/\n\s*/g, ""),
+      }}
+    />
+  );
+}
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");
 
+  // Sync from localStorage after hydration
   useEffect(() => {
-    setTheme(getInitialTheme());
+    const stored = readStoredTheme();
+    applyTheme(stored);
+    setTheme(stored);
+
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        const saved = readStoredTheme();
+        applyTheme(saved);
+        setTheme(saved);
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => window.removeEventListener("pageshow", handlePageShow);
   }, []);
 
-  const toggle = useCallback(() => {
+  const cycleTheme = useCallback(() => {
     setTheme((prev) => {
       const idx = THEMES.indexOf(prev);
       const next = THEMES[(idx + 1) % THEMES.length];
@@ -68,6 +111,24 @@ export function ThemeToggle() {
       return next;
     });
   }, []);
+
+  return (
+    <ThemeContext.Provider value={{ theme, cycleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+/**
+ * Must be placed inside <head> in the root layout.
+ * Runs synchronously before React renders, eliminating theme flash.
+ */
+export function ThemeScript() {
+  return <ThemeInitScript />;
+}
+
+export function ThemeToggle() {
+  const { theme, cycleTheme } = useThemeContext();
 
   const label =
     theme === "light"
@@ -79,16 +140,14 @@ export function ThemeToggle() {
   const Icon = THEME_ICONS[theme];
 
   return (
-    <ClientOnly>
-      <button
-        onClick={toggle}
-        className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-ui text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-        aria-label={label}
-        title={label}
-      >
-        <Icon className="h-4 w-4" aria-hidden="true" />
-        <span className="hidden sm:inline">{THEME_LABELS[theme]}</span>
-      </button>
-    </ClientOnly>
+    <button
+      onClick={cycleTheme}
+      className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-ui text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
+      aria-label={label}
+      title={label}
+    >
+      <Icon className="h-4 w-4" aria-hidden="true" />
+      <span className="hidden sm:inline">{THEME_LABELS[theme]}</span>
+    </button>
   );
 }

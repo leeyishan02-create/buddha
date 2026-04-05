@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Serif_TC, Noto_Sans_TC } from "next/font/google";
-import { ThemeProvider } from "@/components/ThemeToggle";
+import { ThemeProvider, ThemeScript } from "@/components/ThemeToggle";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import "./globals.css";
@@ -36,7 +36,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-Hant" className={`${notoSerifTC.variable} ${notoSansTC.variable} h-full antialiased`}>
+    <html lang="zh-Hant" className={`${notoSerifTC.variable} ${notoSansTC.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className={`min-h-full bg-bg-primary text-text-primary ${notoSansTC.className} theme-transition`}>
         <ThemeProvider>
           <div className="flex min-h-screen flex-col">

@@ -10,25 +10,38 @@ export function RecentlyReadSection() {
   const [recentlyRead, setRecentlyRead] = useState<RecentlyRead[]>([]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("reader.recently_read");
-      if (stored) {
-        const parsed = JSON.parse(stored) as RecentlyRead[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Sort by most recent and take last 6
-          const sorted = parsed
-            .sort(
-              (a, b) =>
-                new Date(b.lastReadAt).getTime() -
-                new Date(a.lastReadAt).getTime(),
-            )
-            .slice(0, 6);
-          setRecentlyRead(sorted);
+    const loadRecentlyRead = () => {
+      try {
+        const stored = localStorage.getItem("reader.recently_read");
+        if (stored) {
+          const parsed = JSON.parse(stored) as RecentlyRead[];
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const sorted = parsed
+              .sort(
+                (a, b) =>
+                  new Date(b.lastReadAt).getTime() -
+                  new Date(a.lastReadAt).getTime(),
+              )
+              .slice(0, 6);
+            setRecentlyRead(sorted);
+          }
         }
+      } catch {
+        // Ignore parse errors
       }
-    } catch {
-      // Ignore parse errors
-    }
+    };
+
+    loadRecentlyRead();
+
+    // Re-load when page is restored from bfcache
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        loadRecentlyRead();
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => window.removeEventListener("pageshow", handlePageShow);
   }, []);
 
   if (recentlyRead.length === 0) return null;
