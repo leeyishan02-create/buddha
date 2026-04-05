@@ -2,48 +2,61 @@
 
 import { useState, useCallback, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { SearchResults } from "@/components/search/SearchResults";
-import { SearchFilters } from "@/components/search/SearchFilters";
 import { SearchEmpty } from "@/components/search/SearchEmpty";
 import { SearchLoading } from "@/components/search/SearchLoading";
 import { searchTexts } from "@/lib/cbeta/api";
-import type { CbetaText, SearchType } from "@/lib/cbeta/types";
+import type { CbetaText } from "@/lib/cbeta/types";
 
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
-  const initialType = (searchParams.get("type") as SearchType) ?? "all";
+  const initialType = searchParams.get("type") ?? "";
 
   const [query, setQuery] = useState(initialQuery);
-  const [searchType, setSearchType] = useState<SearchType>(initialType);
   const [results, setResults] = useState<CbetaText[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const performSearch = useCallback(
-    async (q: string, type: SearchType) => {
-      if (!q.trim()) return;
-
-      setLoading(true);
+    async (q: string, type: string, newOffset: number = 0, append: boolean = false) => {
+      if (!append) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
       setError(null);
       setSearched(true);
 
       try {
-        const result = await searchTexts({
-          query: q,
-          type,
-        });
-        setResults(result ?? []);
+        const result = await searchTexts(q, type, newOffset);
+        if (append) {
+          setResults((prev) => [...prev, ...result.texts]);
+        } else {
+          setResults(result.texts);
+        }
+        setTotal(result.total);
+        setHasMore(result.hasMore);
+        setOffset(newOffset);
       } catch (err) {
         setError(err instanceof Error ? err.message : "搜尋失敗");
-        setResults([]);
+        if (!append) {
+          setResults([]);
+          setTotal(0);
+          setHasMore(false);
+        }
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     },
     [],
@@ -52,15 +65,20 @@ function SearchContent() {
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      router.push(`/search?q=${encodeURIComponent(query)}&type=${searchType}`);
-      performSearch(query, searchType);
+      if (!query.trim()) return;
+      router.push(`/search?q=${encodeURIComponent(query)}&type=${initialType}`);
+      performSearch(query, initialType, 0, false);
     },
-    [query, searchType, performSearch, router],
+    [query, initialType, performSearch, router],
   );
 
+  const handleLoadMore = useCallback(() => {
+    performSearch(initialQuery, initialType, offset + 50, true);
+  }, [initialQuery, initialType, offset, performSearch]);
+
   useEffect(() => {
-    if (initialQuery) {
-      performSearch(initialQuery, initialType);
+    if (initialQuery || initialType) {
+      performSearch(initialQuery, initialType, 0, false);
     }
   }, [initialQuery, initialType, performSearch]);
 
@@ -85,18 +103,14 @@ function SearchContent() {
               </div>
               <button
                 type="submit"
-                className="rounded-lg bg-accent px-6 py-3 text-white transition-colors hover:bg-accent-hover active:bg-accent-active focus-visible:outline-2 focus-visible:outline-border-focus"
+                disabled={loading}
+                className="flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-white transition-colors hover:bg-accent-hover active:bg-accent-active disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-border-focus"
               >
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 搜尋
               </button>
             </div>
           </form>
-
-          {/* Filters */}
-          <SearchFilters
-            searchType={searchType}
-            onTypeChange={setSearchType}
-          />
 
           {/* Results */}
           {loading && <SearchLoading />}
@@ -104,7 +118,7 @@ function SearchContent() {
             <div className="rounded-lg border border-border bg-bg-elevated p-8 text-center">
               <p className="text-text-secondary">{error}</p>
               <button
-                onClick={() => performSearch(query, searchType)}
+                onClick={() => performSearch(query, initialType, 0, false)}
                 className="mt-4 rounded-lg bg-accent px-4 py-2 text-white transition-colors hover:bg-accent-hover"
               >
                 重試
@@ -115,7 +129,21 @@ function SearchContent() {
             <SearchEmpty query={query} />
           )}
           {!loading && results.length > 0 && (
-            <SearchResults texts={results} />
+            <>
+              <SearchResults texts={results} total={total} />
+              {hasMore && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="flex items-center gap-2 rounded-lg border border-border bg-bg-elevated px-6 py-3 text-sm font-ui text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-border-focus"
+                  >
+                    {loadingMore && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {loadingMore ? "載入中..." : "載入更多"}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

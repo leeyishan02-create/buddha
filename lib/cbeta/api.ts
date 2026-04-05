@@ -3,12 +3,15 @@
 // Communicates with our Next.js API routes
 // ============================================
 
-import type {
-  CbetaText,
-  SearchParams,
-} from "./types";
+import type { CbetaText } from "./types";
 
 const API_BASE = "/api";
+
+export interface SearchResult {
+  texts: CbetaText[];
+  total: number;
+  hasMore: boolean;
+}
 
 async function cbetaFetch<T>(path: string): Promise<T | null> {
   try {
@@ -26,11 +29,17 @@ async function cbetaFetch<T>(path: string): Promise<T | null> {
   }
 }
 
-// Search texts using local index via API route
-export async function searchTexts(params: SearchParams): Promise<CbetaText[] | null> {
-  const query = new URLSearchParams();
-  query.set("q", params.query);
+// Search texts via API route, supports category filter and pagination
+export async function searchTexts(
+  query: string,
+  category?: string,
+  offset: number = 0
+): Promise<SearchResult> {
+  const params = new URLSearchParams();
+  if (query) params.set("q", query);
+  if (category) params.set("type", category);
+  if (offset > 0) params.set("offset", String(offset));
 
-  const result = await cbetaFetch<{ texts: CbetaText[] }>(`/search?${query.toString()}`);
-  return result?.texts ?? null;
+  const result = await cbetaFetch<SearchResult>(`/search?${params.toString()}`);
+  return result ?? { texts: [], total: 0, hasMore: false };
 }

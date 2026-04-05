@@ -3,17 +3,16 @@ import { searchCbetaTexts } from "@/lib/cbeta/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const query = request.nextUrl.searchParams.get("q");
-    if (!query || !query.trim()) {
-      return NextResponse.json({ texts: [] });
-    }
+    const query = request.nextUrl.searchParams.get("q") ?? "";
+    const category = request.nextUrl.searchParams.get("type") ?? undefined;
+    const offset = parseInt(request.nextUrl.searchParams.get("offset") ?? "0", 10);
 
-    const results = await searchCbetaTexts(query);
-    return NextResponse.json({ texts: results ?? [] });
+    const result = await searchCbetaTexts(query, category, isNaN(offset) ? 0 : offset);
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Search API error:", error);
     return NextResponse.json(
-      { error: "Search failed", texts: [] },
+      { error: "Search failed", texts: [], total: 0, hasMore: false },
       { status: 500 }
     );
   }

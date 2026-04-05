@@ -6,13 +6,27 @@ import { BookOpen } from "lucide-react";
 
 interface SearchResultsProps {
   texts: CbetaText[];
+  total: number;
 }
 
-export function SearchResults({ texts }: SearchResultsProps) {
+const SERIES_LABELS: Record<string, string> = {
+  T: "大正藏",
+  X: "卍續藏",
+  B: "補編",
+  J: "日本",
+};
+
+function getSeriesLabel(id: string): string {
+  const prefix = id.charAt(0);
+  return SERIES_LABELS[prefix] || "其他";
+}
+
+export function SearchResults({ texts, total }: SearchResultsProps) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-text-secondary">
-        找到 {texts.length} 部經典
+        找到 {total} 部經典
+        {texts.length < total && `（顯示前 ${texts.length} 筆）`}
       </p>
       <div className="space-y-3">
         {texts.map((text) => (
@@ -30,9 +44,6 @@ export function SearchResults({ texts }: SearchResultsProps) {
                   {text.translator && (
                     <span>{text.translator} 譯</span>
                   )}
-                  {text.author && (
-                    <span>{text.author} 著</span>
-                  )}
                   {text.juan && (
                     <span className="flex items-center gap-1">
                       <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
@@ -41,9 +52,14 @@ export function SearchResults({ texts }: SearchResultsProps) {
                   )}
                 </div>
               </div>
-              <span className="shrink-0 rounded bg-bg-secondary px-2 py-1 text-xs font-ui text-text-secondary">
-                {text.vol}{text.id.replace(/^\D+/, "")}
-              </span>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <span className="rounded bg-accent-light px-1.5 py-0.5 text-[10px] font-medium text-accent">
+                  {getSeriesLabel(text.id)}
+                </span>
+                <span className="rounded bg-bg-secondary px-2 py-1 text-xs font-ui text-text-secondary">
+                  {text.id}
+                </span>
+              </div>
             </div>
           </Link>
         ))}

@@ -7,7 +7,7 @@ import { categories } from "@/lib/data/mock-texts";
 import { getFeaturedTexts } from "@/lib/cbeta/server";
 import { ArrowRight } from "lucide-react";
 
-const FEATURED_IDS = ["T0235", "T0251", "T0262", "T0279", "T0237", "T0278"];
+const FEATURED_IDS = ["T0235", "T0251", "T0262", "T0366", "T0586", "T0278"];
 
 export default async function Home() {
   const cbetaTexts = await getFeaturedTexts(FEATURED_IDS);
