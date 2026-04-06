@@ -19,8 +19,7 @@ import { toSimplified } from "@/lib/locale/convert";
 const DEERPARK_API = "https://deerpark.app/api/v1";
 const TIMEOUT_MS = 20000;
 
-// Cache
-const allWorksCache = { data: null as DeerparkWork[] | null, fetched: 0 };
+// Cache (TOC only - allWorks uses Next.js ISR)
 const tocCache = new Map<string, DeerparkTOC>();
 
 async function fetchWithTimeout(url: string): Promise<Response | null> {
@@ -40,23 +39,17 @@ async function fetchWithTimeout(url: string): Promise<Response | null> {
 // ============================================
 
 async function getAllWorks(): Promise<DeerparkWork[] | null> {
-  if (allWorksCache.data && Date.now() - allWorksCache.fetched < 3600000) {
-    return allWorksCache.data;
-  }
-
   const res = await fetchWithTimeout(`${DEERPARK_API}/allworks`);
   if (!res || !res.ok) return null;
 
   const data = await res.json();
-  // Convert all titles and bylines to Simplified Chinese on cache load
-  allWorksCache.data = data.map((w: DeerparkWork) => ({
+  // Convert all titles and bylines to Simplified Chinese
+  return data.map((w: DeerparkWork) => ({
     ...w,
     title: toSimplified(w.title),
     byline: toSimplified(w.byline),
     alias: w.alias ? toSimplified(w.alias) : undefined,
   }));
-  allWorksCache.fetched = Date.now();
-  return allWorksCache.data;
 }
 
 // ============================================
@@ -318,5 +311,6 @@ export async function getFeaturedTexts(ids: string[]): Promise<CbetaText[]> {
 }
 
 export function getTotalTextCount(): number {
-  return allWorksCache.data?.length ?? 4600;
+  // Approximate count based on CBETA Taisho Tripitaka
+  return 4303;
 }
