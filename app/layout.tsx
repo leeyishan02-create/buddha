@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Noto_Serif_TC, Noto_Sans_TC } from "next/font/google";
+import { Noto_Serif_TC, Noto_Serif_SC, Noto_Sans_TC, Noto_Sans_SC } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeToggle";
 import { LocaleProvider } from "@/lib/locale/useLocale";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import "./globals.css";
 
-// Noto Serif TC — for reading content (宣紙上的經文)
+// Noto Serif TC — for Traditional Chinese
 const notoSerifTC = Noto_Serif_TC({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -14,11 +14,27 @@ const notoSerifTC = Noto_Serif_TC({
   display: "swap",
 });
 
-// Noto Sans TC — for UI elements
+// Noto Serif SC — for Simplified Chinese
+const notoSerifSC = Noto_Serif_SC({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-serif-sc",
+  display: "swap",
+});
+
+// Noto Sans TC — for Traditional Chinese
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
   variable: "--font-noto-sans-tc",
+  display: "swap",
+});
+
+// Noto Sans SC — for Simplified Chinese
+const notoSansSC = Noto_Sans_SC({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-noto-sans-sc",
   display: "swap",
 });
 
@@ -37,8 +53,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-Hant" className={`${notoSerifTC.variable} ${notoSansTC.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className={`min-h-full bg-bg-primary text-text-primary ${notoSansTC.className} theme-transition`}>
+    <html
+      lang="zh-Hant"
+      className={`${notoSerifTC.variable} ${notoSerifSC.variable} ${notoSansTC.variable} ${notoSansSC.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-full bg-bg-primary text-text-primary theme-transition">
         <ThemeProvider>
           <LocaleProvider>
             <div className="flex min-h-screen flex-col">

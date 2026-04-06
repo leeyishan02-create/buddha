@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-export type FontFamily = "serif" | "sans" | "kai" | "fangsong";
+export type FontFamily = "reading" | "serif" | "sans";
 export type ContentWidth = "narrow" | "medium" | "wide" | "full";
 
 const CONTENT_WIDTHS: ContentWidth[] = ["narrow", "medium", "wide", "full"];
@@ -149,7 +149,7 @@ export function useReadingPrefs() {
 
   const toggleFontFamily = useCallback(() => {
     setPrefs((prev) => {
-      const families: FontFamily[] = ["serif", "sans", "kai", "fangsong"];
+      const families: FontFamily[] = ["reading", "serif", "sans"];
       const idx = families.indexOf(prev.fontFamily);
       const nextFamily = families[(idx + 1) % families.length];
       const next = { ...prev, fontFamily: nextFamily };

@@ -1,3 +1,10 @@
+/* ============================================
+   Web Fonts via jsDelivr CDN
+   ============================================ */
+@import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-webfont@1.2.0/style.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-tc@5.0.0/index.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-tc@5.0.0/index.css');
+
 @import "tailwindcss";
 
 /* ============================================
@@ -113,12 +120,20 @@
   --color-skeleton-base: var(--color-skeleton-base);
   --color-skeleton-shine: var(--color-skeleton-shine);
 
-  /* Font families — next/font variables are set on <html> */
-  --font-reading: var(--font-noto-serif-tc), "Source Han Serif TC", "Songti TC", serif;
-  --font-ui: var(--font-noto-sans-tc), "Source Han Sans TC", "PingFang TC", sans-serif;
-  --font-kai: "KaiTi", "STKaiti", "AR PL UKai CN", "BiauKai", serif;
-  --font-fangsong: "FangSong", "STFangsong", "AR PL New Sung", serif;
+  /* Font families — loaded via jsDelivr CDN + Google Fonts */
+  --font-reading: "LXGW WenKai TC", "Noto Serif TC", "Source Han Serif TC", "Songti TC", serif;
+  --font-ui: "LXGW WenKai TC", "Noto Sans TC", "Source Han Sans TC", "PingFang TC", sans-serif;
+  --font-serif-tc: var(--font-noto-serif-tc), "Source Han Serif TC", "Songti TC", serif;
+  --font-serif-sc: var(--font-noto-serif-sc), "Source Han Serif SC", "SimSun", serif;
+  --font-sans-tc: var(--font-noto-sans-tc), "Source Han Sans TC", "PingFang TC", sans-serif;
+  --font-sans-sc: var(--font-noto-sans-sc), "Source Han Sans SC", "SimHei", sans-serif;
   --font-gaiji: "HanaMinA", "HanaMinB", "BabelStone Han", serif;
+
+  /* Tailwind font-family utilities */
+  --font-family-serif-tc: var(--font-serif-tc);
+  --font-family-serif-sc: var(--font-serif-sc);
+  --font-family-sans-tc: var(--font-sans-tc);
+  --font-family-sans-sc: var(--font-sans-sc);
 
   /* Reading font sizes with proper line-height and letter-spacing */
   --text-reading-xs: 0.875rem;
@@ -164,6 +179,10 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-ui);
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* Font rendering optimization */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* ---------- Focus-visible for Accessibility ---------- */

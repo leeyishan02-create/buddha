@@ -230,16 +230,28 @@ export function ReadingControls() {
             <label className="mb-2 flex items-center gap-2 text-sm font-medium font-ui text-text-secondary">
               字体
             </label>
-            <div className="grid grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                onClick={() => setFontFamily("reading")}
+                className={`rounded-lg border py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-border-focus ${
+                  fontFamily === "reading"
+                    ? "border-border-focus bg-accent-light text-accent font-medium"
+                    : "border-border text-text-secondary hover:bg-bg-secondary"
+                }`}
+                style={{ fontFamily: "var(--font-reading)" }}
+              >
+                霞鹜文楷
+              </button>
               <button
                 onClick={() => setFontFamily("serif")}
                 className={`rounded-lg border py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-border-focus ${
                   fontFamily === "serif"
                     ? "border-border-focus bg-accent-light text-accent font-medium"
                     : "border-border text-text-secondary hover:bg-bg-secondary"
-                } font-reading`}
+                }`}
+                style={{ fontFamily: "var(--font-serif-tc)" }}
               >
-                明体
+                思源宋体
               </button>
               <button
                 onClick={() => setFontFamily("sans")}
@@ -247,31 +259,10 @@ export function ReadingControls() {
                   fontFamily === "sans"
                     ? "border-border-focus bg-accent-light text-accent font-medium"
                     : "border-border text-text-secondary hover:bg-bg-secondary"
-                } font-ui`}
-              >
-                黑体
-              </button>
-              <button
-                onClick={() => setFontFamily("kai")}
-                className={`rounded-lg border py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-border-focus ${
-                  fontFamily === "kai"
-                    ? "border-border-focus bg-accent-light text-accent font-medium"
-                    : "border-border text-text-secondary hover:bg-bg-secondary"
                 }`}
-                style={{ fontFamily: "var(--font-kai)" }}
+                style={{ fontFamily: "var(--font-sans-tc)" }}
               >
-                楷体
-              </button>
-              <button
-                onClick={() => setFontFamily("fangsong")}
-                className={`rounded-lg border py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-border-focus ${
-                  fontFamily === "fangsong"
-                    ? "border-border-focus bg-accent-light text-accent font-medium"
-                    : "border-border text-text-secondary hover:bg-bg-secondary"
-                }`}
-                style={{ fontFamily: "var(--font-fangsong)" }}
-              >
-                仿宋
+                思源黑体
               </button>
             </div>
           </div>

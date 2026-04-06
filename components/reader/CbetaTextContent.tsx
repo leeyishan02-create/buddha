@@ -152,14 +152,14 @@ function ParagraphWithFootnotes({
 
   if (footnoteRefs.length === 0) {
     return (
-      <p className="text-justify indent-8" style={textStyle}>
+      <p className="text-justify indent-[2em]" style={textStyle}>
         {paragraph.text}
       </p>
     );
   }
 
   return (
-    <p className="text-justify indent-8" style={textStyle}>
+    <p className="text-justify indent-[2em]" style={textStyle}>
       {parts.map((part, i) => (
         <span key={i} className="relative inline">
           {part}
@@ -337,13 +337,15 @@ export function CbetaTextContent({ content }: CbetaTextContentProps) {
   );
 
   const fontClass =
-    fontFamily === "sans"
-      ? "font-ui"
-      : fontFamily === "kai"
-        ? "font-kai"
-        : fontFamily === "fangsong"
-          ? "font-fangsong"
-          : "font-reading";
+    fontFamily === "serif"
+      ? locale === "zh-Hans"
+        ? "font-serif-sc"
+        : "font-serif-tc"
+      : fontFamily === "sans"
+        ? locale === "zh-Hans"
+          ? "font-sans-sc"
+          : "font-sans-tc"
+        : "font-reading";
 
   const handleFootnoteClick = useCallback(
     (fnId: string, buttonEl?: HTMLButtonElement) => {

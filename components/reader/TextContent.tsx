@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useReaderContext } from "./ReadingPrefsProvider";
+import { useLocale } from "@/lib/locale/useLocale";
 import type { MockTextContent, TextSection } from "@/lib/data/mock-content";
 
 interface TextContentProps {
@@ -14,9 +15,10 @@ const CONTENT_WIDTH_CLASS: Record<string, string> = {
   wide: "max-w-5xl",
   full: "max-w-7xl",
 };
-
 export function TextContent({ content }: TextContentProps) {
-  const { fontSize, fontFamily, lineHeight, contentWidth, isLoaded } = useReaderContext();
+  const { fontSize, fontFamily, lineHeight, contentWidth, isLoaded } =
+    useReaderContext();
+  const { locale } = useLocale();
 
   const contentWidthClass = useMemo(
     () => CONTENT_WIDTH_CLASS[contentWidth] ?? "max-w-3xl",
@@ -32,13 +34,15 @@ export function TextContent({ content }: TextContentProps) {
   );
 
   const fontClass =
-    fontFamily === "sans"
-      ? "font-ui"
-      : fontFamily === "kai"
-        ? "font-kai"
-        : fontFamily === "fangsong"
-          ? "font-fangsong"
-          : "font-reading";
+    fontFamily === "serif"
+      ? locale === "zh-Hans"
+        ? "font-serif-sc"
+        : "font-serif-tc"
+      : fontFamily === "sans"
+        ? locale === "zh-Hans"
+          ? "font-sans-sc"
+          : "font-sans-tc"
+        : "font-reading";
 
   if (!isLoaded) {
     const skeletonWidths = ["100%", "85%", "92%", "78%", "96%", "70%", "88%", "82%"];
@@ -82,7 +86,7 @@ export function TextContent({ content }: TextContentProps) {
               {section.paragraphs.map((para, idx) => (
                 <p
                   key={idx}
-                  className="text-justify indent-8"
+                  className="text-justify indent-[2em]"
                   style={textStyle}
                 >
                   {para}

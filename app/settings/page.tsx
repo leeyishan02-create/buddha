@@ -19,10 +19,9 @@ import {
 } from "lucide-react";
 
 const FONT_FAMILY_LABELS: Record<string, string> = {
-  serif: "明体",
-  sans: "黑体",
-  kai: "楷体",
-  fangsong: "仿宋",
+  reading: "霞鹜文楷",
+  serif: "思源宋体",
+  sans: "思源黑体",
 };
 
 const CONTENT_WIDTH_LABELS: Record<string, string> = {
