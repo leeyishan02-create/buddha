@@ -72,12 +72,11 @@ export async function searchCbetaTexts(
 
   if (!works) return null;
 
-  // If no query, return all works
+  // If no query, return ALL works (frontend handles filtering and pagination)
   if (!query.trim()) {
     const total = works.length;
-    const page = works.slice(offset, offset + PAGE_SIZE);
     return {
-      texts: page.map((w: DeerparkWork) => ({
+      texts: works.map((w: DeerparkWork) => ({
         id: w.id,
         title: w.title,
         translator: w.byline || "",
@@ -86,7 +85,7 @@ export async function searchCbetaTexts(
         category: w.id.substring(0, 1),
       })),
       total,
-      hasMore: offset + PAGE_SIZE < total,
+      hasMore: false, // All data returned, frontend handles pagination
     };
   }
 

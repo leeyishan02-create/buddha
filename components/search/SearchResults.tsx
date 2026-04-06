@@ -26,7 +26,7 @@ export function SearchResults({ texts, total }: SearchResultsProps) {
     <div className="space-y-4">
       <p className="text-sm text-text-secondary">
         找到 {total} 部经典
-        {texts.length < total && `（显示前 ${texts.length} 笔）`}
+        {texts.length < total && `（已显示 ${texts.length} 部）`}
       </p>
       <div className="space-y-3">
         {texts.map((text) => (
