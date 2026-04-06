@@ -5,7 +5,7 @@ import { X, BookOpen, Loader2 } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useTocState } from "./TocState";
 import { useLocale } from "@/lib/locale/useLocale";
-import type { CbetaFascicleInfo } from "@/lib/cbeta/types";
+import type { CbetaFascicleInfo } from "@/lib/deerpark/types";
 
 interface TableOfContentsProps {
   catalogId: string;

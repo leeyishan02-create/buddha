@@ -9,7 +9,6 @@ import type {
   CbetaFascicleContent,
   CbetaSection,
   CbetaParagraph,
-  CbetaMetadata,
   CbetaFascicleInfo,
   DeerparkWork,
   DeerparkTOC,
@@ -309,9 +308,4 @@ export async function getFeaturedTexts(ids: string[]): Promise<CbetaText[]> {
     }
   }
   return results;
-}
-
-export function getTotalTextCount(): number {
-  // Approximate count based on CBETA Taisho Tripitaka
-  return 4303;
 }

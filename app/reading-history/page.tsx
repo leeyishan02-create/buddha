@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Header } from "@/components/layout/Header";
-import { MobileNav } from "@/components/layout/MobileNav";
 import { HistoryList } from "@/components/reading-history/HistoryList";
 import { HistoryEmpty } from "@/components/reading-history/HistoryEmpty";
 import { useReadingHistory } from "@/hooks/useReadingHistory";

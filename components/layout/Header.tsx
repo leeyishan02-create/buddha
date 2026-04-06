@@ -39,9 +39,9 @@ export function Header() {
           <Link
             href="/"
             className="flex items-center gap-2 font-reading text-xl font-semibold text-text-primary transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-border-focus rounded-lg px-1"
-            aria-label="观心 — 返回首页"
+            aria-label="佛典 — 返回首页"
           >
-            <span className="text-2xl">观心</span>
+            <span className="text-2xl">佛典</span>
           </Link>
 
           {/* Nav Links */}
@@ -95,9 +95,9 @@ export function Header() {
         <Link
           href="/"
           className="font-reading text-xl font-semibold text-text-primary transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-border-focus rounded-lg px-1"
-          aria-label="观心 — 返回首页"
+          aria-label="佛典 — 返回首页"
         >
-          观心
+          佛典
         </Link>
 
         {/* Spacer to balance layout */}

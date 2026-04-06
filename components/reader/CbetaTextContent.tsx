@@ -8,7 +8,7 @@ import type {
   CbetaContent,
   CbetaParagraph,
   CbetaFootnote,
-} from "@/lib/cbeta/types";
+} from "@/lib/deerpark/types";
 
 interface CbetaTextContentProps {
   content: CbetaContent;
@@ -219,11 +219,11 @@ function MetadataSection({
   const [open, setOpen] = useState(false);
 
   const fields: { label: string; value?: string }[] = [
-    { label: "經文資訊", value: metadata.source },
+    { label: "经文资讯", value: metadata.source },
     { label: "版本记录", value: metadata.version },
-    { label: "編輯說明", value: metadata.editor },
-    { label: "原始資料", value: metadata.originalData },
-    { label: "其他事項", value: metadata.other },
+    { label: "编辑说明", value: metadata.editor },
+    { label: "原始资料", value: metadata.originalData },
+    { label: "其他事项", value: metadata.other },
   ].filter((f) => f.value);
 
   if (fields.length === 0) return null;
@@ -237,7 +237,7 @@ function MetadataSection({
       >
         <span className="flex items-center gap-2">
           <BookOpen className="h-4 w-4" aria-hidden="true" />
-          經文資訊
+          经文资讯
         </span>
         {open ? (
           <ChevronUp className="h-4 w-4" aria-hidden="true" />

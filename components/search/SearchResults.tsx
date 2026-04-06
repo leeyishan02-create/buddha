@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { CbetaText } from "@/lib/cbeta/types";
+import type { CbetaText } from "@/lib/deerpark/types";
 import { BookOpen } from "lucide-react";
 
 interface SearchResultsProps {

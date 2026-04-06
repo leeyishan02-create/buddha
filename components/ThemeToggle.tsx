@@ -104,10 +104,10 @@ export function ThemeToggle() {
 
   const label =
     theme === "light"
-      ? "切換至深色模式"
+      ? "切换至深色模式"
       : theme === "dark"
         ? "切换至古卷模式"
-        : "切換至淺色模式";
+        : "切换至浅色模式";
 
   const Icon = THEME_ICONS[theme];
 

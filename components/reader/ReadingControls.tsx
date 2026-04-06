@@ -154,7 +154,7 @@ export function ReadingControls() {
         className={`fixed z-50 bg-bg-elevated transition-transform duration-300 ease-out
           /* Mobile: bottom sheet */
           bottom-0 left-0 right-0 rounded-t-2xl border-t border-border
-          ${open ? "translate-y-0" : "translate-y-full"}
+          ${open ? "translate-y-0 lg:translate-y-0" : "translate-y-full lg:translate-y-0"}
           /* Desktop: right drawer */
           lg:left-auto lg:top-0 lg:bottom-0 lg:w-80 lg:rounded-none lg:border-l lg:border-t-0 lg:border-border
           ${open ? "lg:translate-x-0" : "lg:translate-x-full"}

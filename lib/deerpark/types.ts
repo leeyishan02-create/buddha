@@ -32,27 +32,6 @@ export interface DeerparkTOC {
   mulu: DeerparkMulu[];
 }
 
-export interface DeerparkSearchResult {
-  found: number;
-  works: {
-    search_results: number;
-    id: string;
-    title: string;
-    byline: string;
-    juans: number[];
-    chars: number;
-  }[];
-}
-
-export interface DeerparkInTextSearchResult {
-  found: number;
-  results: {
-    juan: number;
-    lb: string;
-    paragraph: string;
-  }[];
-}
-
 export interface CbetaFascicleInfo {
   num: number;
   title: string;
@@ -118,14 +97,4 @@ export interface CbetaContent {
   metadata?: CbetaMetadata;
   fascicleNum: number;
   totalFascicles: number;
-}
-
-export type SearchType = "title" | "author" | "translator" | "all";
-
-export interface SearchParams {
-  query: string;
-  type?: SearchType;
-  canon?: string;
-  page?: number;
-  pageSize?: number;
 }

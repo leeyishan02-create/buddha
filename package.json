@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/build-search-index.js && next build",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "update-index": "node scripts/build-search-index.js"
+    "lint": "eslint"
   },
   "dependencies": {
     "@fontsource/lxgw-wenkai-tc": "^5.2.9",

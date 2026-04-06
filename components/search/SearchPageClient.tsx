@@ -9,8 +9,8 @@ import { SearchLoading } from "@/components/search/SearchLoading";
 import { SearchCanonFilter } from "@/components/search/SearchCanonFilter";
 import { SearchJuanFilter } from "@/components/search/SearchJuanFilter";
 import { SearchCharsFilter } from "@/components/search/SearchCharsFilter";
-import { searchTexts } from "@/lib/cbeta/api";
-import type { CbetaText } from "@/lib/cbeta/types";
+import { searchTexts } from "@/lib/deerpark/api";
+import type { CbetaText } from "@/lib/deerpark/types";
 
 const KNOWN_CANONS = new Set(["T", "X", "B", "J"]);
 const PAGE_SIZE = 50;

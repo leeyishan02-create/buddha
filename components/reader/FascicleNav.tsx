@@ -41,7 +41,7 @@ export function FascicleNav({
   return (
     <nav
       className="mx-auto max-w-3xl border-t border-border px-4 py-4 sm:px-6"
-      aria-label="卷導航"
+      aria-label="卷导航"
     >
       <div className="flex items-center justify-between gap-4">
         {prevFascicle ? (

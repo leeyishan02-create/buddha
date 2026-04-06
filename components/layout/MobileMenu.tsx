@@ -59,7 +59,7 @@ export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <span className="font-reading text-xl font-semibold text-text-primary">
-              观心
+              佛典
             </span>
             <button
               onClick={onClose}
@@ -102,7 +102,7 @@ export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =
 
           {/* Footer */}
           <div className="border-t border-border px-5 py-4 text-center text-xs text-text-tertiary font-ui">
-            观心 v1.0
+                          佛典 v1.0
           </div>
         </div>
       </div>

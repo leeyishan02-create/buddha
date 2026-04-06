@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Home, RotateCcw } from "lucide-react";
-import type { TextContentError } from "@/lib/cbeta/server";
+import type { TextContentError } from "@/lib/deerpark/server";
 
 const ERROR_MESSAGES: Record<TextContentError, string> = {
   network: "无法连接服务器，请检查网络连接后重试。",

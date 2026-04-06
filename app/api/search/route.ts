@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchCbetaTexts } from "@/lib/cbeta/server";
+import { searchCbetaTexts } from "@/lib/deerpark/server";
 
 export async function GET(request: NextRequest) {
   try {

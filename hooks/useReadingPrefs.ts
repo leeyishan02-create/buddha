@@ -10,8 +10,8 @@ const CONTENT_WIDTHS: ContentWidth[] = ["narrow", "medium", "wide", "full"];
 const CONTENT_WIDTH_LABELS: Record<ContentWidth, string> = {
   narrow: "窄",
   medium: "中",
-  wide: "寬",
-  full: "全寬",
+  wide: "宽",
+  full: "全宽",
 };
 
 const CONTENT_WIDTH_VALUES: Record<ContentWidth, string> = {
@@ -57,7 +57,7 @@ interface ReadingPrefs {
 
 const DEFAULT_PREFS: ReadingPrefs = {
   fontSize: 18,
-  fontFamily: "serif",
+  fontFamily: "reading",
   lineHeight: 2.0,
   contentWidth: "medium",
 };

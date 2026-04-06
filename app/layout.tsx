@@ -3,7 +3,6 @@ import { Noto_Serif_TC, Noto_Serif_SC, Noto_Sans_TC, Noto_Sans_SC } from "next/f
 import { ThemeProvider } from "@/components/ThemeToggle";
 import { LocaleProvider } from "@/lib/locale/useLocale";
 import { Header } from "@/components/layout/Header";
-import { MobileNav } from "@/components/layout/MobileNav";
 import "./globals.css";
 
 // Noto Serif TC — for Traditional Chinese
@@ -40,20 +39,20 @@ const notoSansSC = Noto_Sans_SC({
 
 export const metadata: Metadata = {
   title: {
-    default: "观心 — 佛典阅读器",
-    template: "%s | 观心",
+    default: "佛典",
+    template: "%s | 佛典",
   },
   description: "探索佛教经典，从大藏经中寻找智慧",
-  keywords: ["佛典", "CBETA", "佛教", "阅读器", "大藏经", "观心"],
+  keywords: ["佛典", "CBETA", "佛教", "阅读器", "大藏经"],
   openGraph: {
-    title: "观心 — 佛典阅读器",
+    title: "佛典",
     description: "探索佛教经典，从大藏经中寻找智慧",
     type: "website",
     locale: "zh_CN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "观心 — 佛典阅读器",
+    title: "佛典",
     description: "探索佛教经典，从大藏经中寻找智慧",
   },
 };
@@ -77,7 +76,6 @@ export default function RootLayout({
               <main className="flex-1" role="main">
                 {children}
               </main>
-              <MobileNav />
             </div>
           </LocaleProvider>
         </ThemeProvider>

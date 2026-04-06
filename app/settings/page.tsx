@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Header } from "@/components/layout/Header";
-import { MobileNav } from "@/components/layout/MobileNav";
 import { useReadingPrefs } from "@/hooks/useReadingPrefs";
 import { useThemeContext } from "@/components/ThemeToggle";
 import { clearAllBookmarks, getBookmarkCount } from "@/lib/db/bookmarks";
@@ -34,7 +32,7 @@ const CONTENT_WIDTH_LABELS: Record<string, string> = {
 
 export default function SettingsPage() {
   const { prefs, isLoaded } = useReadingPrefs();
-  const { theme, cycleTheme } = useThemeContext();
+  const { theme, setTheme } = useThemeContext();
   const [showConfirm, setShowConfirm] = useState<string | null>(null);
   const [isClearing, setIsClearing] = useState(false);
 
@@ -146,7 +144,7 @@ export default function SettingsPage() {
               ].map(({ value, label, Icon }) => (
                 <button
                   key={value}
-                  onClick={() => { if (theme !== value) cycleTheme(); }}
+                  onClick={() => { if (theme !== value) setTheme(value as import("@/components/ThemeToggle").Theme); }}
                   className={`flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-border-focus ${
                     theme === value
                       ? "border-accent bg-accent-light text-accent font-medium"
@@ -230,7 +228,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between py-2 border-b border-border/50">
                 <span className="text-text-secondary">应用名称</span>
                 <span className="font-medium text-text-primary">
-                  观心 — 佛典阅读器
+                  佛典
                 </span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-border/50">

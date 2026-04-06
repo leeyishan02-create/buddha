@@ -1,7 +1,7 @@
 import { SearchBar } from "@/components/ui/SearchBar";
 import { TextCard } from "@/components/ui/TextCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { getFeaturedTexts } from "@/lib/cbeta/server";
+import { getFeaturedTexts } from "@/lib/deerpark/server";
 import { featuredTexts as mockFeaturedTexts } from "@/lib/data/mock-texts";
 import { ArrowRight } from "lucide-react";
 
@@ -29,7 +29,7 @@ export default async function Home() {
       {/* ===== Hero Section ===== */}
       <section className="flex flex-col items-center justify-center px-4 pt-16 text-center sm:pt-20 lg:pt-24">
         <h1 className="mb-3 text-4xl font-bold font-reading text-text-primary sm:text-5xl">
-          观心
+          佛典
         </h1>
         <p className="mb-8 max-w-md text-lg leading-relaxed text-text-secondary font-reading sm:text-xl">
           探索佛教经典，从大藏经中寻找智慧

@@ -6,8 +6,8 @@ import { ReadingProgress } from "@/components/reader/ReadingProgress";
 import { ReadingPrefsProvider } from "@/components/reader/ReadingPrefsProvider";
 import { SaveReadingHistory } from "@/components/reader/SaveReadingHistory";
 import { ReaderError } from "@/components/reader/ReaderError";
-import { getTextContent, getTableOfContents } from "@/lib/cbeta/server";
-import type { CbetaContent } from "@/lib/cbeta/types";
+import { getTextContent, getTableOfContents } from "@/lib/deerpark/server";
+import type { CbetaContent } from "@/lib/deerpark/types";
 
 // Dynamic imports for large/hidden components
 const CbetaTextContent = dynamic(
