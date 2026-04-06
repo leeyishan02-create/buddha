@@ -2,6 +2,10 @@
 
 [📖 繁體中文版](./README.zh-Hant.md)
 
+🌐 在线体验：[buddha-taupe.vercel.app](https://buddha-taupe.vercel.app)
+
+🌐 在线体验：[buddha-taupe.vercel.app](https://buddha-taupe.vercel.app)
+
 ## 项目初衷
 
 CBETA 和 Deer Park 是优秀的佛经数据平台，但在使用过程中我发现它们的界面存在一些不足：
