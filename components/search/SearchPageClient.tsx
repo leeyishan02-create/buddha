@@ -55,6 +55,15 @@ function SearchContent() {
 
       try {
         const result = await searchTexts(q, newOffset);
+        if (!result) {
+          setError("网络连接失败，请检查网络后重试");
+          if (!append) {
+            setResults([]);
+            setTotal(0);
+            setHasMore(false);
+          }
+          return;
+        }
         if (append) {
           setResults((prev) => [...prev, ...result.texts]);
         } else {
@@ -64,7 +73,7 @@ function SearchContent() {
         setHasMore(result.hasMore);
         setOffset(newOffset);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "搜索失败");
+        setError(err instanceof Error ? err.message : "搜索失败，请稍后重试");
         if (!append) {
           setResults([]);
           setTotal(0);
@@ -143,7 +152,7 @@ function SearchContent() {
               onClick={() => performSearch(query, 0, false)}
               className="mt-4 rounded-lg bg-accent px-4 py-2 text-white transition-colors hover:bg-accent-hover"
             >
-              重试
+              重新搜索
             </button>
           </div>
         )}

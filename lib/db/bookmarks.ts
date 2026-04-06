@@ -15,6 +15,15 @@ export interface Bookmark {
   createdAt: string;
 }
 
+export type StorageError = { type: "quota_exceeded" } | { type: "unknown"; message: string };
+
+function handleStorageError(error: unknown): StorageError {
+  if (error instanceof DOMException && error.name === "QuotaExceededError") {
+    return { type: "quota_exceeded" };
+  }
+  return { type: "unknown", message: error instanceof Error ? error.message : "Unknown error" };
+}
+
 export function getBookmarks(): Bookmark[] {
   if (typeof window === "undefined") return [];
   try {
@@ -27,34 +36,39 @@ export function getBookmarks(): Bookmark[] {
   }
 }
 
-export function setBookmarks(bookmarks: Bookmark[]): void {
-  localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
+export function setBookmarks(bookmarks: Bookmark[]): { success: boolean; error?: StorageError } {
+  try {
+    localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: handleStorageError(error) };
+  }
 }
 
-export function addBookmark(bookmark: Bookmark): Bookmark[] {
+export function addBookmark(bookmark: Bookmark): { success: boolean; bookmarks: Bookmark[]; error?: StorageError } {
   const bookmarks = getBookmarks();
   // Prevent duplicates
   if (bookmarks.some((b) => b.id === bookmark.id)) {
-    return bookmarks;
+    return { success: true, bookmarks };
   }
   const updated = [bookmark, ...bookmarks];
-  setBookmarks(updated);
-  return updated;
+  const result = setBookmarks(updated);
+  return { ...result, bookmarks: updated };
 }
 
-export function removeBookmark(bookmarkId: string): Bookmark[] {
+export function removeBookmark(bookmarkId: string): { success: boolean; bookmarks: Bookmark[]; error?: StorageError } {
   const bookmarks = getBookmarks();
   const updated = bookmarks.filter((b) => b.id !== bookmarkId);
-  setBookmarks(updated);
-  return updated;
+  const result = setBookmarks(updated);
+  return { ...result, bookmarks: updated };
 }
 
 export function hasBookmark(bookmarkId: string): boolean {
   return getBookmarks().some((b) => b.id === bookmarkId);
 }
 
-export function clearAllBookmarks(): void {
-  setBookmarks([]);
+export function clearAllBookmarks(): { success: boolean; error?: StorageError } {
+  return setBookmarks([]);
 }
 
 export function getBookmarkCount(): number {

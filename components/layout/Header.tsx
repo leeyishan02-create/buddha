@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Menu, Home, Search, Bookmark, Settings } from "lucide-react";
+import { Menu, Home, Search, Bookmark, Settings, BookOpen } from "lucide-react";
 import { useState, useCallback } from "react";
 import { MobileMenu } from "./MobileMenu";
 
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/", label: "首页", icon: Home },
   { href: "/search", label: "搜索", icon: Search },
   { href: "/bookmarks", label: "书签", icon: Bookmark },
+  { href: "/reading-history", label: "历史", icon: BookOpen },
   { href: "/settings", label: "设置", icon: Settings },
 ];
 

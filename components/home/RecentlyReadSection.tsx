@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import type { RecentlyRead } from "@/lib/data/mock-texts";
@@ -51,7 +51,7 @@ export function RecentlyReadSection() {
     <section className="mx-auto w-full max-w-6xl px-4 sm:px-6">
       <SectionHeader
         title="最近阅读"
-        viewAllHref="/bookmarks"
+        viewAllHref="/reading-history"
         viewAllLabel="阅读记录"
         className="mb-5"
       />
@@ -61,7 +61,7 @@ export function RecentlyReadSection() {
         aria-label="最近阅读的经典"
       >
         {recentlyRead.map((item) => {
-          const displayTitle = useMemo(() => convert(item.title), [item.title, convert]);
+          const displayTitle = convert(item.title);
           return (
             <Link
               key={item.id}

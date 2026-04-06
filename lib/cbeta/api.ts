@@ -33,11 +33,10 @@ async function cbetaFetch<T>(path: string): Promise<T | null> {
 export async function searchTexts(
   query: string,
   offset: number = 0
-): Promise<SearchResult> {
+): Promise<SearchResult | null> {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (offset > 0) params.set("offset", String(offset));
 
-  const result = await cbetaFetch<SearchResult>(`/search?${params.toString()}`);
-  return result ?? { texts: [], total: 0, hasMore: false };
+  return await cbetaFetch<SearchResult>(`/search?${params.toString()}`);
 }

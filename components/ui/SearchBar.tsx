@@ -45,24 +45,26 @@ export function SearchBar({
       aria-label="搜索佛教经典"
       className={`w-full ${className}`}
     >
-      <div className="relative flex items-center">
-        <SearchIcon
-          className="absolute left-4 h-5 w-5 text-text-tertiary pointer-events-none"
-          aria-hidden="true"
-        />
-        <input
-          ref={inputRef}
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder ?? defaultPlaceholder}
-          aria-label={placeholder ?? defaultPlaceholder}
-          className="w-full rounded-full border border-border bg-bg-elevated py-3.5 pl-12 pr-24 text-base font-ui text-text-primary placeholder:text-text-tertiary transition-colors focus:border-border-focus focus:outline-none"
-        />
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <SearchIcon
+            className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-tertiary pointer-events-none"
+            aria-hidden="true"
+          />
+          <input
+            ref={inputRef}
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={placeholder ?? defaultPlaceholder}
+            aria-label={placeholder ?? defaultPlaceholder}
+            className="w-full rounded-lg border border-border bg-bg-elevated py-3 pl-10 pr-4 text-base font-ui text-text-primary placeholder:text-text-tertiary transition-colors focus:border-border-focus focus:outline-none"
+          />
+        </div>
         <button
           type="submit"
           aria-label="搜索"
-          className="absolute right-1.5 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover active:bg-accent-active focus-visible:outline-2 focus-visible:outline-border-focus"
+          className="shrink-0 flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-hover active:bg-accent-active focus-visible:outline-2 focus-visible:outline-border-focus"
         >
           搜索
         </button>

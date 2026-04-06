@@ -12,10 +12,12 @@ import {
   getBookmarks,
   clearAllBookmarks as clearAllBookmarksFn,
   type Bookmark,
+  type StorageError,
 } from "@/lib/db/bookmarks";
 
 export function useBookmark(bookmarkId?: string) {
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [error, setError] = useState<StorageError | null>(null);
 
   // Check bookmark status when ID changes
   useEffect(() => {
@@ -37,12 +39,17 @@ export function useBookmark(bookmarkId?: string) {
 
   const toggleBookmark = useCallback(
     (bookmark: Bookmark) => {
+      setError(null);
       if (isBookmarked) {
         removeBookmarkFn(bookmark.id);
         setIsBookmarked(false);
       } else {
-        addBookmark(bookmark);
-        setIsBookmarked(true);
+        const result = addBookmark(bookmark);
+        if (result.success) {
+          setIsBookmarked(true);
+        } else {
+          setError(result.error ?? null);
+        }
       }
     },
     [isBookmarked],
@@ -50,6 +57,7 @@ export function useBookmark(bookmarkId?: string) {
 
   return {
     isBookmarked,
+    error,
     toggleBookmark,
   };
 }
@@ -57,6 +65,7 @@ export function useBookmark(bookmarkId?: string) {
 export function useBookmarkList() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<StorageError | null>(null);
 
   useEffect(() => {
     setBookmarks(getBookmarks());
@@ -72,18 +81,29 @@ export function useBookmarkList() {
   }, []);
 
   const removeBookmark = useCallback((bookmarkId: string) => {
-    removeBookmarkFn(bookmarkId);
-    setBookmarks(getBookmarks());
+    setError(null);
+    const result = removeBookmarkFn(bookmarkId);
+    if (result.success) {
+      setBookmarks(result.bookmarks);
+    } else {
+      setError(result.error ?? null);
+    }
   }, []);
 
   const clearAllBookmarks = useCallback(() => {
-    clearAllBookmarksFn();
-    setBookmarks(getBookmarks());
+    setError(null);
+    const result = clearAllBookmarksFn();
+    if (result.success) {
+      setBookmarks([]);
+    } else {
+      setError(result.error ?? null);
+    }
   }, []);
 
   return {
     bookmarks,
     isLoaded,
+    error,
     removeBookmark,
     clearAllBookmarks,
   };

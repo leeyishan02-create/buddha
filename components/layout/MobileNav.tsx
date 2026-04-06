@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Bookmark, Settings } from "lucide-react";
+import { Home, Search, Bookmark, Settings, BookOpen } from "lucide-react";
 
 const tabItems = [
   { href: "/", label: "首页", icon: Home },
   { href: "/search", label: "搜索", icon: Search },
   { href: "/bookmarks", label: "书签", icon: Bookmark },
+  { href: "/reading-history", label: "记录", icon: BookOpen },
   { href: "/settings", label: "设置", icon: Settings },
 ];
 

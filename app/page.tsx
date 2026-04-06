@@ -1,35 +1,31 @@
 import { SearchBar } from "@/components/ui/SearchBar";
 import { TextCard } from "@/components/ui/TextCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { RecentlyReadSection } from "@/components/home/RecentlyReadSection";
 import { getFeaturedTexts } from "@/lib/cbeta/server";
+import { featuredTexts as mockFeaturedTexts } from "@/lib/data/mock-texts";
 import { ArrowRight } from "lucide-react";
 
-const FEATURED_IDS = ["T0235", "T0251", "T0262", "T0366", "T0586", "T0278"];
+const FEATURED_IDS = ["T0235", "T0251", "T0262", "T0366", "T0475", "T0278"];
 
 export default async function Home() {
   const cbetaTexts = await getFeaturedTexts(FEATURED_IDS);
 
-  // Data from getAllWorks() is already Simplified Chinese
-  const featuredTexts = cbetaTexts.map((t) => ({
-    id: t.id,
-    title: t.title,
-    translator: t.translator ?? "",
-    volumes: t.juan ? parseInt(t.juan) || 1 : 1,
-    canon: t.vol?.replace(/\d+/, "") || "T",
-    description: "",
-  }));
+  // Fallback to mock data if API fails
+  const featuredTexts = cbetaTexts.length > 0
+    ? cbetaTexts.map((t) => ({
+        id: t.id,
+        title: t.title,
+        translator: t.translator ?? "",
+        volumes: t.juan ? parseInt(t.juan) || 1 : 1,
+        canon: t.vol?.replace(/\d+/, "") || "T",
+        description: "",
+      }))
+    : mockFeaturedTexts;
 
   return (
     <div className="flex flex-col gap-12 pb-24 lg:pb-12">
       {/* ===== Hero Section ===== */}
       <section className="flex flex-col items-center justify-center px-4 pt-16 text-center sm:pt-20 lg:pt-24">
-        {/* Brand */}
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-2xl font-bold text-white font-reading shadow-lg shadow-accent/20">
-            观
-          </div>
-        </div>
         <h1 className="mb-3 text-4xl font-bold font-reading text-text-primary sm:text-5xl">
           观心
         </h1>
@@ -57,9 +53,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
-      {/* ===== Recently Read Section (conditional) ===== */}
-      <RecentlyReadSection />
     </div>
   );
 }

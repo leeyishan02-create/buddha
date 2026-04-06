@@ -6,6 +6,7 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { useReadingPrefs } from "@/hooks/useReadingPrefs";
 import { useThemeContext } from "@/components/ThemeToggle";
 import { clearAllBookmarks, getBookmarkCount } from "@/lib/db/bookmarks";
+import { clearReadingHistory, getReadingHistory } from "@/lib/db/reading-history";
 import {
   BookOpen,
   Trash2,
@@ -46,7 +47,7 @@ export default function SettingsPage() {
   }, []);
 
   const handleClearReadingHistory = useCallback(() => {
-    localStorage.removeItem("reader.recently_read");
+    clearReadingHistory();
   }, []);
 
   const handleResetPrefs = useCallback(() => {
@@ -60,6 +61,7 @@ export default function SettingsPage() {
   }, []);
 
   const bookmarkCount = getBookmarkCount();
+  const historyCount = getReadingHistory().length;
 
   if (!isLoaded) {
     return (
@@ -191,7 +193,7 @@ export default function SettingsPage() {
                     最近阅读记录
                   </p>
                   <p className="text-xs text-text-tertiary">
-                    阅读历史记录
+                    共 {historyCount} 条记录
                   </p>
                 </div>
                 <button

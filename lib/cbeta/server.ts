@@ -17,7 +17,7 @@ import type {
 import { toSimplified } from "@/lib/locale/convert";
 
 const DEERPARK_API = "https://deerpark.app/api/v1";
-const TIMEOUT_MS = 10000;
+const TIMEOUT_MS = 20000;
 
 // Cache
 const allWorksCache = { data: null as DeerparkWork[] | null, fetched: 0 };
@@ -74,11 +74,10 @@ const PAGE_SIZE = 50;
 export async function searchCbetaTexts(
   query: string,
   offset: number = 0
-): Promise<SearchResult> {
+): Promise<SearchResult | null> {
   const works = await getAllWorks();
-  const emptyResult: SearchResult = { texts: [], total: 0, hasMore: false };
 
-  if (!works) return emptyResult;
+  if (!works) return null;
 
   // If no query, return all works
   if (!query.trim()) {
@@ -165,6 +164,13 @@ export async function getTableOfContents(id: string): Promise<CbetaFascicleInfo[
 // Get text content
 // ============================================
 
+export type TextContentError = 'network' | 'parse' | 'not_found';
+
+export interface TextContentResult {
+  content: CbetaContent | null;
+  error?: TextContentError;
+}
+
 // Get a single work from allWorks cache
 async function getWorkById(id: string): Promise<DeerparkWork | null> {
   const works = await getAllWorks();
@@ -175,12 +181,22 @@ async function getWorkById(id: string): Promise<DeerparkWork | null> {
 export async function getTextContent(
   id: string,
   fascicleNum: number = 1
-): Promise<CbetaContent | null> {
+): Promise<TextContentResult> {
   const res = await fetchWithTimeout(
     `${DEERPARK_API}/html/${id}/${fascicleNum}`
   );
 
-  if (!res || !res.ok) return null;
+  if (!res) {
+    return { content: null, error: 'network' };
+  }
+
+  if (res.status === 404) {
+    return { content: null, error: 'not_found' };
+  }
+
+  if (!res.ok) {
+    return { content: null, error: 'network' };
+  }
 
   const html = await res.text();
 
@@ -188,7 +204,12 @@ export async function getTextContent(
   const work = await getWorkById(id);
   const translator = work?.byline || undefined;
 
-  return parseHtmlToContent(html, id, fascicleNum, translator);
+  const content = parseHtmlToContent(html, id, fascicleNum, translator);
+  if (!content) {
+    return { content: null, error: 'parse' };
+  }
+
+  return { content };
 }
 
 // Parse Deer Park HTML to structured content
