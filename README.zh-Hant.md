@@ -4,8 +4,6 @@
 
 🌐 線上體驗：[buddha-taupe.vercel.app](https://buddha-taupe.vercel.app)
 
-🌐 線上體驗：[buddha-taupe.vercel.app](https://buddha-taupe.vercel.app)
-
 ## 專案初衷
 
 CBETA 和 Deer Park 是優秀的佛經資料平台，但在使用過程中我發現它們的介面存在一些不足：
