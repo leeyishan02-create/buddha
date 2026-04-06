@@ -10,6 +10,8 @@ import { SaveReadingHistory } from "@/components/reader/SaveReadingHistory";
 import { ReaderError } from "@/components/reader/ReaderError";
 import { getTextContent, getTableOfContents } from "@/lib/cbeta/server";
 
+export const revalidate = 3600; // 1 hour ISR
+
 interface ReaderPageProps {
   params: Promise<{ catalogId: string }>;
   searchParams: Promise<{ vol?: string }>;

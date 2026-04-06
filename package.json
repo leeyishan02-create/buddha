@@ -10,6 +10,9 @@
     "update-index": "node scripts/build-search-index.js"
   },
   "dependencies": {
+    "@fontsource/lxgw-wenkai-tc": "^5.2.9",
+    "@fontsource/noto-sans-tc": "^5.2.9",
+    "@fontsource/noto-serif-tc": "^5.2.10",
     "lucide-react": "^1.7.0",
     "next": "16.2.2",
     "opencc-js": "^1.0.5",

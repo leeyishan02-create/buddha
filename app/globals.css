@@ -1,9 +1,14 @@
 /* ============================================
-   Web Fonts via jsDelivr CDN
+   Web Fonts via @fontsource
    ============================================ */
-@import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-webfont@1.2.0/style.css');
-@import url('https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-tc@5.0.0/index.css');
-@import url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-tc@5.0.0/index.css');
+@import '@fontsource/lxgw-wenkai-tc/400.css';
+@import '@fontsource/noto-serif-tc/400.css';
+@import '@fontsource/noto-serif-tc/500.css';
+@import '@fontsource/noto-serif-tc/600.css';
+@import '@fontsource/noto-serif-tc/700.css';
+@import '@fontsource/noto-sans-tc/400.css';
+@import '@fontsource/noto-sans-tc/500.css';
+@import '@fontsource/noto-sans-tc/700.css';
 
 @import "tailwindcss";
 

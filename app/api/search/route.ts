@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(result);
+    const response = NextResponse.json(result);
+    response.headers.set("Cache-Control", "public, max-age=300"); // 5 min browser cache
+    return response;
   } catch (error) {
     console.error("Search API error:", error);
     return NextResponse.json(

@@ -5,6 +5,8 @@ import { getFeaturedTexts } from "@/lib/cbeta/server";
 import { featuredTexts as mockFeaturedTexts } from "@/lib/data/mock-texts";
 import { ArrowRight } from "lucide-react";
 
+export const revalidate = 3600; // 1 hour ISR
+
 const FEATURED_IDS = ["T0235", "T0251", "T0262", "T0366", "T0475", "T0278"];
 
 export default async function Home() {
