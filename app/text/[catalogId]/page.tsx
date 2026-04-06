@@ -1,14 +1,45 @@
 import { redirect } from "next/navigation";
+import dynamic from "next/dynamic";
 import { ReadingHeader } from "@/components/reader/ReadingHeader";
-import { ReadingControls } from "@/components/reader/ReadingControls";
-import { CbetaTextContent } from "@/components/reader/CbetaTextContent";
 import { FascicleNav } from "@/components/reader/FascicleNav";
-import { TableOfContents } from "@/components/reader/TableOfContents";
 import { ReadingProgress } from "@/components/reader/ReadingProgress";
 import { ReadingPrefsProvider } from "@/components/reader/ReadingPrefsProvider";
 import { SaveReadingHistory } from "@/components/reader/SaveReadingHistory";
 import { ReaderError } from "@/components/reader/ReaderError";
 import { getTextContent, getTableOfContents } from "@/lib/cbeta/server";
+import type { CbetaContent } from "@/lib/cbeta/types";
+
+// Dynamic imports for large/hidden components
+const CbetaTextContent = dynamic(
+  () => import("@/components/reader/CbetaTextContent").then(mod => ({ default: mod.CbetaTextContent })),
+  { loading: () => <TextSkeleton /> }
+);
+
+const TableOfContents = dynamic(
+  () => import("@/components/reader/TableOfContents").then(mod => ({ default: mod.TableOfContents })),
+  { loading: () => null }
+);
+
+const ReadingControls = dynamic(
+  () => import("@/components/reader/ReadingControls").then(mod => ({ default: mod.ReadingControls })),
+  { loading: () => null }
+);
+
+function TextSkeleton() {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      <div className="space-y-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className="skeleton h-5 rounded"
+            style={{ width: `${60 + Math.random() * 40}%` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export const revalidate = 3600; // 1 hour ISR
 

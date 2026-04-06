@@ -38,9 +38,6 @@ function SearchContent() {
   // Load all texts on mount (even without query)
   useEffect(() => {
     searchInputRef.current?.focus();
-    if (initialQuery) {
-      searchInputRef.current?.select();
-    }
   }, [initialQuery]);
 
   const performSearch = useCallback(

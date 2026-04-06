@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Bookmark, ListTree } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { triggerTocToggle } from "./TocState";
@@ -23,11 +23,20 @@ export function ReadingHeader({
   fascicleNum,
   totalFascicles,
 }: ReadingHeaderProps) {
+  const router = useRouter();
   const { convert } = useLocale();
 
   // Generate bookmark ID based on current fascicle
   const bookmarkId = `${catalogId}_vol_${fascicleNum}`;
   const { isBookmarked, toggleBookmark } = useBookmark(bookmarkId);
+
+  const handleBack = useCallback(() => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  }, [router]);
 
   const handleBookmark = useCallback(() => {
     const bookmark: BookmarkType = {
@@ -56,13 +65,13 @@ export function ReadingHeader({
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
         {/* Left: Back + Title */}
         <div className="flex min-w-0 items-center gap-3">
-          <Link
-            href="/"
+          <button
+            onClick={handleBack}
             className="shrink-0 rounded-lg p-1.5 text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-            aria-label="返回首页"
+            aria-label="返回上一页"
           >
             <ArrowLeft className="h-5 w-5" />
-          </Link>
+          </button>
           <div className="min-w-0">
             <h1 className="truncate font-reading text-base font-semibold text-text-primary sm:text-lg">
               {displayTitle}

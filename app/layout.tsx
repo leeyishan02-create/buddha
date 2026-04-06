@@ -45,6 +45,17 @@ export const metadata: Metadata = {
   },
   description: "探索佛教经典，从大藏经中寻找智慧",
   keywords: ["佛典", "CBETA", "佛教", "阅读器", "大藏经", "观心"],
+  openGraph: {
+    title: "观心 — 佛典阅读器",
+    description: "探索佛教经典，从大藏经中寻找智慧",
+    type: "website",
+    locale: "zh_CN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "观心 — 佛典阅读器",
+    description: "探索佛教经典，从大藏经中寻找智慧",
+  },
 };
 
 export default function RootLayout({
