@@ -8,6 +8,7 @@ import { SearchEmpty } from "@/components/search/SearchEmpty";
 import { SearchLoading } from "@/components/search/SearchLoading";
 import { SearchCanonFilter } from "@/components/search/SearchCanonFilter";
 import { SearchJuanFilter } from "@/components/search/SearchJuanFilter";
+import { SearchCharsFilter } from "@/components/search/SearchCharsFilter";
 import { searchTexts } from "@/lib/cbeta/api";
 import type { CbetaText } from "@/lib/cbeta/types";
 
@@ -31,12 +32,14 @@ function SearchContent() {
   const initialQuery = searchParams.get("q") ?? "";
   const initialCanons = searchParams.getAll("canon");
   const initialJuans = searchParams.getAll("juan");
+  const initialChars = searchParams.getAll("chars");
 
   const [query, setQuery] = useState(initialQuery);
   const [selectedCanons, setSelectedCanons] = useState<string[]>(
     initialCanons.length > 0 ? initialCanons : []
   );
   const [selectedJuans, setSelectedJuans] = useState<string[]>(initialJuans);
+  const [selectedChars, setSelectedChars] = useState<string[]>(initialChars);
 
   // Raw API results
   const [rawResults, setRawResults] = useState<CbetaText[]>([]);
@@ -76,8 +79,24 @@ function SearchContent() {
       });
     }
 
+    // Chars filtering
+    if (selectedChars.length > 0) {
+      results = results.filter((t) => {
+        const chars = t.chars ?? 0;
+        return selectedChars.some((range) => {
+          if (range === "<1K") return chars < 1000;
+          if (range === "1K-5K") return chars >= 1000 && chars < 5000;
+          if (range === "5K-10K") return chars >= 5000 && chars < 10000;
+          if (range === "10K-50K") return chars >= 10000 && chars < 50000;
+          if (range === "50K-100K") return chars >= 50000 && chars < 100000;
+          if (range === "100K+") return chars >= 100000;
+          return false;
+        });
+      });
+    }
+
     return results;
-  }, [rawResults, selectedCanons, selectedJuans]);
+  }, [rawResults, selectedCanons, selectedJuans, selectedChars]);
 
   // Client-side pagination
   const paginatedResults = useMemo(() => {
@@ -140,14 +159,25 @@ function SearchContent() {
     });
   }, []);
 
+  // Chars toggle
+  const handleToggleChars = useCallback((chars: string) => {
+    setSelectedChars((prev) => {
+      if (prev.includes(chars)) {
+        return prev.filter((c) => c !== chars);
+      }
+      return [...prev, chars];
+    });
+  }, []);
+
   // Sync URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     selectedCanons.forEach((c) => params.append("canon", c));
     selectedJuans.forEach((j) => params.append("juan", j));
+    selectedChars.forEach((c) => params.append("chars", c));
     router.replace(`/search?${params.toString()}`);
-  }, [selectedCanons, selectedJuans, query, router]);
+  }, [selectedCanons, selectedJuans, selectedChars, query, router]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -156,10 +186,11 @@ function SearchContent() {
       params.set("q", query);
       selectedCanons.forEach((c) => params.append("canon", c));
       selectedJuans.forEach((j) => params.append("juan", j));
+      selectedChars.forEach((c) => params.append("chars", c));
       router.push(`/search?${params.toString()}`);
       performSearch(query);
     },
-    [query, selectedCanons, selectedJuans, performSearch, router],
+    [query, selectedCanons, selectedJuans, selectedChars, performSearch, router],
   );
 
   const handleLoadMore = useCallback(() => {
@@ -173,10 +204,11 @@ function SearchContent() {
       params.set("q", suggestionQuery);
       selectedCanons.forEach((c) => params.append("canon", c));
       selectedJuans.forEach((j) => params.append("juan", j));
+      selectedChars.forEach((c) => params.append("chars", c));
       router.push(`/search?${params.toString()}`);
       performSearch(suggestionQuery);
     },
-    [selectedCanons, selectedJuans, performSearch, router],
+    [selectedCanons, selectedJuans, selectedChars, performSearch, router],
   );
 
   // Initial search on mount
@@ -222,10 +254,18 @@ function SearchContent() {
         </div>
 
         {/* Juan Filter */}
-        <div className="mb-6">
+        <div className="mb-4">
           <SearchJuanFilter
             selectedJuans={selectedJuans}
             onToggle={handleToggleJuan}
+          />
+        </div>
+
+        {/* Chars Filter */}
+        <div className="mb-6">
+          <SearchCharsFilter
+            selectedChars={selectedChars}
+            onToggle={handleToggleChars}
           />
         </div>
 

@@ -65,6 +65,7 @@ export interface CbetaText {
   author?: string;
   translator?: string;
   juan?: string;
+  chars?: number;
   vol: string;
   category?: string;
 }
