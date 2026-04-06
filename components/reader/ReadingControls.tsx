@@ -43,7 +43,7 @@ export function ReadingControls() {
     decreaseContentWidth,
   } = useReaderContext();
 
-  const { theme, cycleTheme } = useThemeContext();
+  const { theme, setTheme } = useThemeContext();
   const { locale, toggleLocale } = useLocale();
   const [open, setOpen] = useState(false);
   const [fontSizeInput, setFontSizeInput] = useState(
@@ -346,11 +346,7 @@ export function ReadingControls() {
               {THEMES.map(({ value, label, Icon }) => (
                 <button
                   key={value}
-                  onClick={() => {
-                    if (theme !== value) {
-                      cycleTheme();
-                    }
-                  }}
+                  onClick={() => setTheme(value)}
                   className={`flex flex-1 items-center justify-center gap-1.5 py-2 text-xs font-ui transition-colors focus-visible:outline-2 focus-visible:outline-border-focus ${
                     theme === value
                       ? "bg-accent-light text-accent font-medium"

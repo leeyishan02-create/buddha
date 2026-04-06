@@ -23,6 +23,17 @@ function groupByCatalog(bookmarks: Bookmark[]) {
   return groups;
 }
 
+// Convert number to Chinese numeral
+function toChineseNum(n: number): string {
+  const digits = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+  if (n < 10) return digits[n];
+  if (n === 10) return "十";
+  if (n < 20) return "十" + digits[n - 10];
+  const tens = Math.floor(n / 10);
+  const ones = n % 10;
+  return digits[tens] + "十" + (ones > 0 ? digits[ones] : "");
+}
+
 export function BookmarkList({ bookmarks, deletingId, onDelete }: BookmarkListProps) {
   const groups = useMemo(() => groupByCatalog(bookmarks), [bookmarks]);
 
@@ -77,7 +88,7 @@ export function BookmarkList({ bookmarks, deletingId, onDelete }: BookmarkListPr
                             href={href}
                             className="inline-flex items-center gap-1 font-reading text-sm font-medium text-text-primary transition-colors hover:text-accent"
                           >
-                            卷 {vol}
+                            卷{toChineseNum(parseInt(vol))}
                             <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                           </Link>
                           <span className="text-xs text-text-tertiary">{dateStr}</span>

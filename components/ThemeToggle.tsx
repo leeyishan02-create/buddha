@@ -46,6 +46,7 @@ function applyTheme(theme: Theme) {
 interface ThemeContextValue {
   theme: Theme;
   cycleTheme: () => void;
+  setTheme: (theme: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -86,8 +87,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setThemeDirect = useCallback((newTheme: Theme) => {
+    applyTheme(newTheme);
+    setTheme(newTheme);
+  }, []);
+
   return (
-    <ThemeContext.Provider value={{ theme, cycleTheme }}>
+    <ThemeContext.Provider value={{ theme, cycleTheme, setTheme: setThemeDirect }}>
       {children}
     </ThemeContext.Provider>
   );
